@@ -1,19 +1,20 @@
 import Link from "next/link";
-import { FileText, Bird, GitFork, Globe, Mail } from "lucide-react";
+import { FileText } from "lucide-react";
+import { socialConfig } from "@/config/social";
 
 const footerLinks = {
   Product: [
-    { label: "Features", href: "#features" },
-    { label: "Pricing", href: "#pricing" },
+    { label: "Features", href: "/features" },
+    { label: "Pricing", href: "/pricing" },
     { label: "Templates", href: "/templates" },
-    { label: "ATS Scanner", href: "/ats" },
+    { label: "ATS Scanner", href: "/ats-scanner" },
     { label: "AI Writer", href: "/ai-writer" },
   ],
   Resources: [
     { label: "Blog", href: "/blog" },
-    { label: "Resume Tips", href: "/blog/tips" },
-    { label: "Career Advice", href: "/blog/career" },
-    { label: "Interview Prep", href: "/interview" },
+    { label: "Resume Tips", href: "/resume-tips" },
+    { label: "Career Advice", href: "/career-advice" },
+    { label: "Interview Prep", href: "/interview-prep" },
     { label: "Help Center", href: "/help" },
   ],
   Company: [
@@ -25,57 +26,67 @@ const footerLinks = {
   ],
 };
 
-const socials = [
-  { icon: Bird, href: "https://twitter.com", label: "Twitter" },
-  { icon: GitFork, href: "https://github.com", label: "GitHub" },
-  { icon: Globe, href: "https://linkedin.com", label: "LinkedIn" },
-  { icon: Mail, href: "mailto:hello@resumeai.app", label: "Email" },
+const extraLinks = [
+  { label: "Cookies", href: "/cookies" },
+  { label: "Security", href: "/security" },
+  { label: "Accessibility", href: "/accessibility" },
+  { label: "Status", href: "/status" },
+  { label: "Changelog", href: "/changelog" },
+  { label: "API", href: "/api" },
+  { label: "Docs", href: "/docs" },
+  { label: "Sitemap", href: "/sitemap" },
 ];
 
 export function Footer() {
   return (
-    <footer className="border-t border-white/10 bg-zinc-950/50 backdrop-blur-sm">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-10">
-          {/* Brand */}
-          <div className="col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg shadow-violet-500/30">
-                <FileText className="w-4 h-4 text-white" />
+    <footer className="relative border-t border-white/10 bg-zinc-950 pt-20 pb-10 overflow-hidden">
+      {/* Background Gradients for Glassmorphism feel */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1000px] h-[400px] bg-gradient-radial from-violet-600/5 via-transparent to-transparent pointer-events-none" />
+
+      <div className="container mx-auto max-w-7xl px-6 relative z-10">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-12 lg:gap-8 mb-16">
+          {/* Brand & Mission */}
+          <div className="col-span-2 md:col-span-2 lg:col-span-3 pr-8">
+            <Link href="/" className="flex items-center gap-2 mb-6 group inline-flex">
+              <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg shadow-violet-500/20 group-hover:shadow-violet-500/40 transition-shadow duration-300">
+                <FileText className="w-5 h-5 text-white" />
               </div>
-              <span className="font-bold text-lg bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
+              <span className="font-bold text-xl tracking-tight text-white group-hover:text-violet-300 transition-colors duration-300">
                 ResumeAI
               </span>
             </Link>
-            <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
-              Build world-class, ATS-optimized resumes in minutes using the power of AI. Land more interviews, faster.
+            <p className="text-sm text-zinc-400 leading-relaxed mb-8 max-w-sm">
+              The world&apos;s most advanced AI resume builder. Craft an ATS-optimized, professional resume in seconds and land your dream job faster.
             </p>
-            <div className="flex items-center gap-3 mt-6">
-              {socials.map(({ icon: Icon, href, label }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-foreground transition-all"
-                >
-                  <Icon className="w-4 h-4" />
-                </a>
-              ))}
+            <div className="flex items-center gap-4">
+              {Object.values(socialConfig).map((social) => {
+                const Icon = social.icon;
+                return (
+                  <a
+                    key={social.name}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.name}
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 hover:border-white/20 hover:scale-110 transition-all duration-300"
+                  >
+                    <Icon className="w-4 h-4" />
+                  </a>
+                );
+              })}
             </div>
           </div>
 
-          {/* Link Groups */}
+          {/* Link Columns */}
           {Object.entries(footerLinks).map(([group, links]) => (
-            <div key={group}>
-              <h3 className="text-sm font-semibold mb-4 text-foreground">{group}</h3>
-              <ul className="space-y-2.5">
+            <div key={group} className="col-span-1">
+              <h3 className="text-sm font-semibold mb-6 text-white tracking-wide">{group}</h3>
+              <ul className="space-y-4">
                 {links.map(({ label, href }) => (
                   <li key={label}>
                     <Link
                       href={href}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      className="text-sm text-zinc-400 hover:text-violet-400 transition-colors duration-200 block"
                     >
                       {label}
                     </Link>
@@ -86,13 +97,25 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="border-t border-white/10 mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} ResumeAI. All rights reserved.
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Built with ❤️ to help you land your dream job.
-          </p>
+        {/* Extra Links & Copyright Bar */}
+        <div className="border-t border-white/10 pt-8 flex flex-col lg:flex-row items-center justify-between gap-6">
+          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3">
+            <span className="text-sm text-zinc-500 font-medium">
+              © {new Date().getFullYear()} ResumeAI. Built for professionals.
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center lg:justify-end gap-x-6 gap-y-3">
+            {extraLinks.map(({ label, href }) => (
+              <Link
+                key={label}
+                href={href}
+                className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </footer>

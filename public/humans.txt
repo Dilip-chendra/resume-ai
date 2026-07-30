@@ -1,0 +1,8 @@
+/* TEAM */
+Engineer: Dilip Chendra
+Site: https://github.com/Dilip-chendra/resume-ai
+
+/* SITE */
+Standards: HTML5, CSS3
+Components: Next.js, React, Tailwind CSS, Prisma, Supabase, Clerk
+Software: Node.js
