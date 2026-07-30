@@ -1,4 +1,4 @@
-﻿"use client";
+﻿﻿"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { createStructuredResumeAction } from "@/core/use-cases/resume.actions";
 
-// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ Types â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 type PersonalInfo = {
   fullName: string;
@@ -68,7 +68,7 @@ type Skills = {
   generativeAI: string;
 };
 
-// â”€â”€â”€ Helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ Helper â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 const uid = () => Math.random().toString(36).slice(2, 9);
 
@@ -82,7 +82,7 @@ const STEPS = [
   { id: 7, label: "Generate",       icon: Sparkles },
 ];
 
-// â”€â”€â”€ Sub-components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ Sub-components â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 function SectionField({
   label, placeholder, value, onChange, type = "text", required = false, icon: Icon
@@ -138,7 +138,7 @@ function Card({ children, className = "" }: { children: React.ReactNode; classNa
   );
 }
 
-// â”€â”€â”€ STEP 1: Personal Info â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ STEP 1: Personal Info â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 function Step1Personal({ data, onChange }: { data: PersonalInfo; onChange: (d: PersonalInfo) => void }) {
   const set = (key: keyof PersonalInfo) => (v: string) => onChange({ ...data, [key]: v });
@@ -158,7 +158,7 @@ function Step1Personal({ data, onChange }: { data: PersonalInfo; onChange: (d: P
   );
 }
 
-// â”€â”€â”€ STEP 2: Experience â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ STEP 2: Experience â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 function Step2Experience({
   entries, onChange
@@ -211,11 +211,11 @@ function Step2Experience({
           </div>
           <SectionTextarea
             label="Key Achievements & Responsibilities"
-            placeholder={`â€¢ Developed a Speech-to-Speech Translation System achieving 95% accuracy\nâ€¢ Collaborated with team of 5 to design scalable microservices architecture\nâ€¢ Reduced inference latency by 40% using model quantization techniques`}
+            placeholder={`"¢ Developed a Speech-to-Speech Translation System achieving 95% accuracy\n"¢ Collaborated with team of 5 to design scalable microservices architecture\n"¢ Reduced inference latency by 40% using model quantization techniques`}
             value={exp.description}
             onChange={v => update(exp.id, "description", v)}
             rows={5}
-            hint="Write each achievement on a new line starting with â€¢. Add numbers/percentages where possible."
+            hint="Write each achievement on a new line starting with "¢. Add numbers/percentages where possible."
           />
         </Card>
       ))}
@@ -226,7 +226,7 @@ function Step2Experience({
   );
 }
 
-// â”€â”€â”€ STEP 3: Education â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ STEP 3: Education â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 function Step3Education({ entries, onChange }: { entries: EducationEntry[]; onChange: (e: EducationEntry[]) => void }) {
   function add() {
@@ -272,7 +272,7 @@ function Step3Education({ entries, onChange }: { entries: EducationEntry[]; onCh
   );
 }
 
-// â”€â”€â”€ STEP 4: Projects â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ STEP 4: Projects â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 function Step4Projects({ entries, onChange }: { entries: ProjectEntry[]; onChange: (e: ProjectEntry[]) => void }) {
   function add() {
@@ -303,11 +303,11 @@ function Step4Projects({ entries, onChange }: { entries: ProjectEntry[]; onChang
           <SectionField label="Technologies Used" placeholder="e.g. Python, LangChain, FastAPI, React, PostgreSQL" value={proj.technologies} onChange={v => update(proj.id, "technologies", v)} />
           <SectionTextarea
             label="Description & Key Features"
-            placeholder={`â€¢ Designed chatbot-style AI workflows using prompt engineering and task decomposition\nâ€¢ Explored Retrieval-Augmented Generation pipeline design\nâ€¢ Focused on real-world use cases such as document assistance and customer query handling`}
+            placeholder={`"¢ Designed chatbot-style AI workflows using prompt engineering and task decomposition\n"¢ Explored Retrieval-Augmented Generation pipeline design\n"¢ Focused on real-world use cases such as document assistance and customer query handling`}
             value={proj.description}
             onChange={v => update(proj.id, "description", v)}
             rows={4}
-            hint="Each bullet on a new line starting with â€¢"
+            hint="Each bullet on a new line starting with "¢"
           />
         </Card>
       ))}
@@ -318,14 +318,14 @@ function Step4Projects({ entries, onChange }: { entries: ProjectEntry[]; onChang
   );
 }
 
-// â”€â”€â”€ STEP 5: Skills â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ STEP 5: Skills â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 function Step5Skills({ data, onChange }: { data: Skills; onChange: (d: Skills) => void }) {
   const set = (key: keyof Skills) => (v: string) => onChange({ ...data, [key]: v });
   return (
     <div className="space-y-4">
       <div className="rounded-xl border border-violet-500/20 bg-violet-500/5 p-4 text-sm text-violet-300">
-        <p className="font-semibold mb-1">ðŸ’¡ Tip</p>
+        <p className="font-semibold mb-1">ðŸ'¡ Tip</p>
         <p className="text-violet-300/70">Enter comma-separated values for each category. The AI will organize them beautifully. Leave blank if not applicable.</p>
       </div>
       <SectionField label="Programming Languages" placeholder="Python, JavaScript, TypeScript, SQL, Java, C++" value={data.programming} onChange={set("programming")} />
@@ -337,7 +337,7 @@ function Step5Skills({ data, onChange }: { data: Skills; onChange: (d: Skills) =
   );
 }
 
-// â”€â”€â”€ STEP 6: Certifications & Leadership â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ STEP 6: Certifications & Leadership â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 function Step6Certs({
   certs, onCertsChange,
@@ -388,18 +388,18 @@ function Step6Certs({
         </h3>
         <SectionTextarea
           label=""
-          placeholder={`â€¢ Team lead and active participant in AI, software, and innovation-focused hackathons\nâ€¢ Strong interest in AI agents, RAG systems, NLP, LLM workflows, and real-world AI tools\nâ€¢ Comfortable learning independently, experimenting quickly, and collaborating with teams`}
+          placeholder={`"¢ Team lead and active participant in AI, software, and innovation-focused hackathons\n"¢ Strong interest in AI agents, RAG systems, NLP, LLM workflows, and real-world AI tools\n"¢ Comfortable learning independently, experimenting quickly, and collaborating with teams`}
           value={leadership}
           onChange={onLeadershipChange}
           rows={4}
-          hint="Each bullet on a new line starting with â€¢"
+          hint="Each bullet on a new line starting with "¢"
         />
       </div>
     </div>
   );
 }
 
-// â”€â”€â”€ STEP 7: Finalize & Generate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ STEP 7: Finalize & Generate â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 const TONES = [
   { value: "professional", label: "Professional", desc: "Polished & confident" },
@@ -422,7 +422,7 @@ function Step7Generate({
         <p className="text-emerald-300/70">Fill in the details below and our AI will craft your perfect resume in seconds.</p>
       </div>
 
-      <SectionField label="Resume Title (for your reference)" placeholder="e.g. Software Engineer Resume â€” Google" value={resumeTitle} onChange={setResumeTitle} required icon={FileText} />
+      <SectionField label="Resume Title (for your reference)" placeholder="e.g. Software Engineer Resume -- Google" value={resumeTitle} onChange={setResumeTitle} required icon={FileText} />
       <SectionField label="Target Job Title / Role" placeholder="e.g. AI/ML Engineer, Full Stack Developer, Data Scientist" value={targetRole} onChange={setTargetRole} required icon={Briefcase} />
 
       <div className="space-y-2">
@@ -458,7 +458,7 @@ function Step7Generate({
   );
 }
 
-// â”€â”€â”€ MAIN WIZARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ MAIN WIZARD â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 export function ResumeBuilderWizard() {
   const router = useRouter();
@@ -618,7 +618,7 @@ export function ResumeBuilderWizard() {
                     <div>
                       <h2 className="text-xl font-bold text-white">{s.label}</h2>
                       <p className="text-sm text-zinc-500">
-                        {step === 1 && "Your contact details â€” these appear at the top of your resume"}
+                        {step === 1 && "Your contact details -- these appear at the top of your resume"}
                         {step === 2 && "Add your work experience, internships, and roles"}
                         {step === 3 && "Add your academic qualifications"}
                         {step === 4 && "Showcase your personal and academic projects"}

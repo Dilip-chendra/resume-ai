@@ -1,4 +1,4 @@
-﻿"use client";
+﻿﻿"use client";
 
 import { motion, Variants } from "framer-motion";
 import Link from "next/link";
@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 const floatingBadges = [
-  { icon: "ðŸ“„", label: "ATS Optimized", color: "from-violet-500/20 to-violet-500/5", delay: 0 },
+  { icon: "ðŸ"„", label: "ATS Optimized", color: "from-violet-500/20 to-violet-500/5", delay: 0 },
   { icon: "âœ¨", label: "AI Powered", color: "from-indigo-500/20 to-indigo-500/5", delay: 0.2 },
   { icon: "ðŸš€", label: "Land More Interviews", color: "from-pink-500/20 to-pink-500/5", delay: 0.4 },
 ];
@@ -104,7 +104,7 @@ export function HeroSection() {
           variants={itemVariants}
           className="text-lg sm:text-xl text-zinc-400 max-w-2xl leading-relaxed mb-10"
         >
-          Create a world-class, ATS-optimized resume in minutes. Our AI analyzes job descriptions, tailors your content, and ensures you pass every ATS filter â€” automatically.
+          Create a world-class, ATS-optimized resume in minutes. Our AI analyzes job descriptions, tailors your content, and ensures you pass every ATS filter -- automatically.
         </motion.p>
 
         {/* CTA Buttons */}
@@ -115,7 +115,7 @@ export function HeroSection() {
             asChild
           >
             <Link href="/dashboard">
-              Build My Resume â€” Free
+              Build My Resume -- Free
               <ArrowRight className="w-4 h-4" />
             </Link>
           </Button>
@@ -193,7 +193,7 @@ export function HeroSection() {
                   ))}
                 </div>
               </div>
-              {/* Right panel â€” AI Writer */}
+              {/* Right panel -- AI Writer */}
               <div className="col-span-3 rounded-xl border border-white/10 bg-zinc-950/50 p-4 flex flex-col gap-3">
                 <div className="flex items-center gap-2 mb-1">
                   <Sparkles className="w-4 h-4 text-violet-400" />

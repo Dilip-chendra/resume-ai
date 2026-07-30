@@ -1,4 +1,4 @@
-﻿"use server";
+﻿﻿"use server";
 
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
@@ -6,7 +6,7 @@ import { runAI, runATSAnalysis } from "@/lib/ai";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-// â”€â”€â”€ Schemas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ Schemas â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 const CreateResumeSchema = z.object({
   title: z.string().min(1).max(100),
   jobTitle: z.string().min(1),
@@ -28,7 +28,7 @@ const ATSAnalysisSchema = z.object({
   jobDescription: z.string().min(50, "Please provide at least 50 characters for accurate analysis."),
 });
 
-// â”€â”€â”€ Helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ Helper â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 async function getOptionalUser() {
   const { userId } = await auth();
   if (!userId) return null;
@@ -47,7 +47,7 @@ async function getOptionalUser() {
   return user;
 }
 
-// â”€â”€â”€ Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ Actions â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€â"€
 
 /**
  * Creates a new AI-generated resume and saves it to the database (if logged in).
@@ -67,7 +67,7 @@ export async function createResumeAction(formData: FormData) {
   const { title, jobTitle, experience, skills, tone, jobDescription } = parsed.data;
 
   try {
-    // Call AI â€” inject the user's formatting sample if available
+    // Call AI -- inject the user's formatting sample if available
     const aiResult = await runAI({
       type: "generate_resume",
       jobTitle,

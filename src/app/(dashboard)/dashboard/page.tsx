@@ -1,4 +1,4 @@
-﻿import { auth, currentUser } from "@clerk/nextjs/server";
+﻿﻿import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { FileText, ScanText, PenLine, TrendingUp, Plus, ArrowRight, Sparkles, Clock } from "lucide-react";
@@ -92,7 +92,7 @@ export default async function DashboardPage() {
           { label: "Resumes Created", value: user ? user.resumes.length : 0, icon: FileText, color: "text-violet-400" },
           { label: "AI Credits Left", value: user ? user.credits : "âˆž", icon: Sparkles, color: "text-indigo-400" },
           { label: "ATS Reports", value: 0, icon: ScanText, color: "text-pink-400" },
-          { label: "Avg. ATS Score", value: "â€”", icon: TrendingUp, color: "text-emerald-400" },
+          { label: "Avg. ATS Score", value: "--", icon: TrendingUp, color: "text-emerald-400" },
         ].map(({ label, value, icon: Icon, color }) => (
           <div
             key={label}
