@@ -211,11 +211,11 @@ function Step2Experience({
           </div>
           <SectionTextarea
             label="Key Achievements & Responsibilities"
-            placeholder={`"¢ Developed a Speech-to-Speech Translation System achieving 95% accuracy\n"¢ Collaborated with team of 5 to design scalable microservices architecture\n"¢ Reduced inference latency by 40% using model quantization techniques`}
+            placeholder={`- Developed a Speech-to-Speech Translation System achieving 95% accuracy\n- Collaborated with team of 5 to design scalable microservices architecture\n- Reduced inference latency by 40% using model quantization techniques`}
             value={exp.description}
             onChange={v => update(exp.id, "description", v)}
             rows={5}
-            hint="Write each achievement on a new line starting with "¢. Add numbers/percentages where possible."
+            hint="Write each achievement on a new line starting with -. Add numbers/percentages where possible."
           />
         </Card>
       ))}
@@ -303,11 +303,11 @@ function Step4Projects({ entries, onChange }: { entries: ProjectEntry[]; onChang
           <SectionField label="Technologies Used" placeholder="e.g. Python, LangChain, FastAPI, React, PostgreSQL" value={proj.technologies} onChange={v => update(proj.id, "technologies", v)} />
           <SectionTextarea
             label="Description & Key Features"
-            placeholder={`"¢ Designed chatbot-style AI workflows using prompt engineering and task decomposition\n"¢ Explored Retrieval-Augmented Generation pipeline design\n"¢ Focused on real-world use cases such as document assistance and customer query handling`}
+            placeholder={`- Designed chatbot-style AI workflows using prompt engineering and task decomposition\n- Explored Retrieval-Augmented Generation pipeline design\n- Focused on real-world use cases such as document assistance and customer query handling`}
             value={proj.description}
             onChange={v => update(proj.id, "description", v)}
             rows={4}
-            hint="Each bullet on a new line starting with "¢"
+            hint="Each bullet on a new line starting with -"
           />
         </Card>
       ))}
@@ -388,11 +388,11 @@ function Step6Certs({
         </h3>
         <SectionTextarea
           label=""
-          placeholder={`"¢ Team lead and active participant in AI, software, and innovation-focused hackathons\n"¢ Strong interest in AI agents, RAG systems, NLP, LLM workflows, and real-world AI tools\n"¢ Comfortable learning independently, experimenting quickly, and collaborating with teams`}
+          placeholder={`- Team lead and active participant in AI, software, and innovation-focused hackathons\n- Strong interest in AI agents, RAG systems, NLP, LLM workflows, and real-world AI tools\n- Comfortable learning independently, experimenting quickly, and collaborating with teams`}
           value={leadership}
           onChange={onLeadershipChange}
           rows={4}
-          hint="Each bullet on a new line starting with "¢"
+          hint="Each bullet on a new line starting with -"
         />
       </div>
     </div>
@@ -735,6 +735,8 @@ export function ResumeBuilderWizard() {
     </div>
   );
 }
+
+
 
 
 

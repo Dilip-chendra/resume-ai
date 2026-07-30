@@ -1,4 +1,4 @@
-﻿﻿"use client";
+﻿"use client";
 
 import { motion, Variants } from "framer-motion";
 import Link from "next/link";
@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 const floatingBadges = [
-  { icon: "ðŸ"„", label: "ATS Optimized", color: "from-violet-500/20 to-violet-500/5", delay: 0 },
-  { icon: "âœ¨", label: "AI Powered", color: "from-indigo-500/20 to-indigo-500/5", delay: 0.2 },
-  { icon: "ðŸš€", label: "Land More Interviews", color: "from-pink-500/20 to-pink-500/5", delay: 0.4 },
+  { icon: "🎯", label: "ATS Optimized", color: "from-violet-500/20 to-violet-500/5", delay: 0 },
+  { icon: "✨", label: "AI Powered", color: "from-indigo-500/20 to-indigo-500/5", delay: 0.2 },
+  { icon: "🚀", label: "Land More Interviews", color: "from-pink-500/20 to-pink-500/5", delay: 0.4 },
 ];
 
 const stats = [
