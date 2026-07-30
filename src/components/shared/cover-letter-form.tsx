@@ -70,6 +70,7 @@ export function CoverLetterForm({ resumes }: { resumes: ResumeChoice[] }) {
     <>
       <style>{`
         @media print {
+          @page { margin: 0; }
           body * { visibility: hidden !important; }
           #cv-paper, #cv-paper * { visibility: visible !important; }
           #cv-paper {

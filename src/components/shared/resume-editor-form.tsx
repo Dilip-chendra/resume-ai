@@ -51,6 +51,7 @@ export function ResumeEditorForm({ resume }: { resume: any }) { // eslint-disabl
       {/* Print-only: show ONLY the resume paper */}
       <style>{`
         @media print {
+          @page { margin: 0; }
           body * { visibility: hidden !important; }
           #${PAPER_ID}, #${PAPER_ID} * { visibility: visible !important; }
           #${PAPER_ID} {

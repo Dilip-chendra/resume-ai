@@ -67,6 +67,7 @@ export default function GuestResumePreview() {
       {/* Print-only styles: hide everything except the paper */}
       <style>{`
         @media print {
+          @page { margin: 0; }
           body * { visibility: hidden !important; }
           #resume-paper-guest,
           #resume-paper-guest * { visibility: visible !important; }
