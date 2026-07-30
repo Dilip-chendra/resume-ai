@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { seoPages } from "@/content/seo-pages";
+import { SITE_URL } from "@/config/site";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -26,8 +27,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {};
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://resume-ai.com";
-
   return {
     title: page.title,
     description: page.description,
@@ -37,7 +36,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: page.title,
       description: page.description,
-      url: `${appUrl}/${page.slug}`,
+      url: `${SITE_URL}/${page.slug}`,
     },
   };
 }

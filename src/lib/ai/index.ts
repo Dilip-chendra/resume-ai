@@ -84,7 +84,7 @@ async function callOpenRouter(prompt: string, systemPrompt: string): Promise<str
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+      "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL ?? "https://resume-ai-brown-two.vercel.app",
     },
     body: JSON.stringify({
       model: "google/gemini-2.0-flash-exp:free",

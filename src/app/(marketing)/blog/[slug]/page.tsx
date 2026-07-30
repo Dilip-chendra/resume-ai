@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPostBySlug, getPostSlugs } from "@/lib/blog";
+import { SITE_URL } from "@/config/site";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -27,8 +28,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {};
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://resume-ai.com";
-
   return {
     title: `${post.meta.title} | Resume AI Blog`,
     description: post.meta.description,
@@ -43,7 +42,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       publishedTime: post.meta.date,
       authors: [post.meta.author],
       tags: post.meta.tags,
-      url: `${appUrl}/blog/${post.meta.slug}`,
+      url: `${SITE_URL}/blog/${post.meta.slug}`,
     },
   };
 }
@@ -72,13 +71,13 @@ export default async function BlogPostPage({ params }: PageProps) {
         "@type": "ListItem",
         position: 1,
         name: "Blog",
-        item: `${process.env.NEXT_PUBLIC_APP_URL || "https://resume-ai.com"}/blog`,
+        item: `${SITE_URL}/blog`,
       },
       {
         "@type": "ListItem",
         position: 2,
         name: post.meta.title,
-        item: `${process.env.NEXT_PUBLIC_APP_URL || "https://resume-ai.com"}/blog/${post.meta.slug}`,
+        item: `${SITE_URL}/blog/${post.meta.slug}`,
       },
     ],
   };

@@ -1,4 +1,5 @@
 import React from "react";
+import { SITE_URL } from "@/config/site";
 
 export type SchemaType =
   | "Organization"
@@ -10,6 +11,7 @@ export type SchemaType =
 
 interface JsonLdProps {
   type: SchemaType;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: Record<string, any>;
 }
 
@@ -34,8 +36,8 @@ export function OrganizationJsonLd() {
       type="Organization"
       data={{
         name: "Resume AI",
-        url: process.env.NEXT_PUBLIC_APP_URL || "https://resume-ai.com",
-        logo: `${process.env.NEXT_PUBLIC_APP_URL || "https://resume-ai.com"}/icon.png`,
+        url: SITE_URL,
+        logo: `${SITE_URL}/icon.png`,
         sameAs: [
           "https://twitter.com/resumeai",
           "https://linkedin.com/company/resumeai",
@@ -46,16 +48,15 @@ export function OrganizationJsonLd() {
 }
 
 export function WebSiteJsonLd() {
-  const url = process.env.NEXT_PUBLIC_APP_URL || "https://resume-ai.com";
   return (
     <JsonLd
       type="WebSite"
       data={{
         name: "Resume AI",
-        url: url,
+        url: SITE_URL,
         potentialAction: {
           "@type": "SearchAction",
-          target: `${url}/blog?q={search_term_string}`,
+          target: `${SITE_URL}/blog?q={search_term_string}`,
           "query-input": "required name=search_term_string",
         },
       }}

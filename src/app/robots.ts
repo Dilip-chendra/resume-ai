@@ -1,7 +1,8 @@
 import { MetadataRoute } from "next";
+import { SITE_URL } from "@/config/site";
 
 export default function robots(): MetadataRoute.Robots {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://resume-ai-brown-two.vercel.app";
+  const appUrl = SITE_URL;
 
   return {
     rules: {

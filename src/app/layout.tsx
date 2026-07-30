@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
+import { SITE_URL } from "@/config/site";
+import { OrganizationJsonLd, WebSiteJsonLd } from "@/components/seo/json-ld";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
+import { Clarity } from "@/components/analytics/clarity";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,16 +17,26 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://resume-ai.com";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(appUrl),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Resume AI - Free AI Resume Builder & ATS Checker",
     template: "%s | Resume AI",
   },
-  description: "Create a world-class, ATS-optimized professional resume in minutes using AI. Free resume builder, cover letter generator, and ATS checker.",
-  keywords: ["Resume Builder AI", "AI Resume Builder", "Free Resume Builder", "ATS Resume Builder", "Resume Generator", "Professional Resume Maker", "Resume Creator", "CV Builder", "AI CV Generator", "Resume AI"],
+  description:
+    "Create a world-class, ATS-optimized professional resume in minutes using AI. Free resume builder, cover letter generator, and ATS checker.",
+  keywords: [
+    "Resume Builder AI",
+    "AI Resume Builder",
+    "Free Resume Builder",
+    "ATS Resume Builder",
+    "Resume Generator",
+    "Professional Resume Maker",
+    "Resume Creator",
+    "CV Builder",
+    "AI CV Generator",
+    "Resume AI",
+  ],
   authors: [{ name: "Resume AI Team" }],
   creator: "Resume AI",
   publisher: "Resume AI",
@@ -39,12 +53,13 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Resume AI - Free AI Resume Builder & ATS Checker",
-    description: "Create a world-class, ATS-optimized professional resume in minutes using AI. Free resume builder, cover letter generator, and ATS checker.",
-    url: appUrl,
+    description:
+      "Create a world-class, ATS-optimized professional resume in minutes using AI. Free resume builder, cover letter generator, and ATS checker.",
+    url: SITE_URL,
     siteName: "Resume AI",
     images: [
       {
-        url: "/og-image.jpg", // We will add an open-graph image later
+        url: `${SITE_URL}/og-image.jpg`,
         width: 1200,
         height: 630,
         alt: "Resume AI - Free AI Resume Builder",
@@ -56,9 +71,10 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Resume AI - Free AI Resume Builder & ATS Checker",
-    description: "Create a world-class, ATS-optimized professional resume in minutes using AI.",
+    description:
+      "Create a world-class, ATS-optimized professional resume in minutes using AI.",
     creator: "@resumeai",
-    images: ["/og-image.jpg"],
+    images: [`${SITE_URL}/og-image.jpg`],
   },
   icons: {
     icon: "/favicon.ico",
@@ -83,10 +99,6 @@ export const metadata: Metadata = {
     },
   },
 };
-
-import { OrganizationJsonLd, WebSiteJsonLd } from "@/components/seo/json-ld";
-import { GoogleAnalytics } from "@/components/analytics/google-analytics";
-import { Clarity } from "@/components/analytics/clarity";
 
 export default function RootLayout({
   children,

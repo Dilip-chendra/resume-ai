@@ -2,8 +2,10 @@ import { MetadataRoute } from "next";
 import { seoPages } from "@/content/seo-pages";
 import { getAllPosts } from "@/lib/blog";
 
+import { SITE_URL } from "@/config/site";
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://resume-ai-brown-two.vercel.app";
+  const appUrl = SITE_URL;
 
   // Core Pages
   const coreRoutes = [
