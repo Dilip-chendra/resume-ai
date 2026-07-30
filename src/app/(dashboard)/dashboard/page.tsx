@@ -1,18 +1,20 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+﻿import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { FileText, ScanText, PenLine, TrendingUp, Plus, ArrowRight, Sparkles, Clock } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-async function getDashboardData(clerkId: string) {
+async function getDashboardData(clerkId: string, email: string) {
   // Upsert user in database on first visit
   const user = await db.user.upsert({
     where: { clerkId },
-    update: {},
+    update: {
+      email,
+    },
     create: {
       clerkId,
-      email: "", // will be populated by Clerk webhook
+      email,
       credits: 3,
     },
     include: {
@@ -59,8 +61,9 @@ export default async function DashboardPage() {
   let user = null;
   let clerkUser = null;
   if (userId) {
-    user = await getDashboardData(userId);
     clerkUser = await currentUser();
+    const email = clerkUser?.primaryEmailAddress?.emailAddress || `${userId}@placeholder.com`;
+    user = await getDashboardData(userId, email);
   }
 
   const firstName = clerkUser?.firstName || (userId ? "there" : "Guest");
@@ -72,7 +75,7 @@ export default async function DashboardPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl md:text-3xl font-bold text-white">
-          {greeting}, {firstName} 👋
+          {greeting}, {firstName} ðŸ‘‹
         </h1>
         <p className="text-zinc-400 mt-1">
           {user ? (
@@ -87,9 +90,9 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
           { label: "Resumes Created", value: user ? user.resumes.length : 0, icon: FileText, color: "text-violet-400" },
-          { label: "AI Credits Left", value: user ? user.credits : "∞", icon: Sparkles, color: "text-indigo-400" },
+          { label: "AI Credits Left", value: user ? user.credits : "âˆž", icon: Sparkles, color: "text-indigo-400" },
           { label: "ATS Reports", value: 0, icon: ScanText, color: "text-pink-400" },
-          { label: "Avg. ATS Score", value: "—", icon: TrendingUp, color: "text-emerald-400" },
+          { label: "Avg. ATS Score", value: "â€”", icon: TrendingUp, color: "text-emerald-400" },
         ].map(({ label, value, icon: Icon, color }) => (
           <div
             key={label}
@@ -186,3 +189,4 @@ export default async function DashboardPage() {
     </div>
   );
 }
+
