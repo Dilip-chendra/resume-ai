@@ -1,30 +1,20 @@
-﻿﻿import { auth, currentUser } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+﻿import { auth, currentUser } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
-import { FileText, ScanText, PenLine, TrendingUp, Plus, ArrowRight, Sparkles, Clock } from "lucide-react";
+import { FileText, ScanText, PenLine, TrendingUp, Plus, ArrowRight, Sparkles, Clock, Zap, Shield, Star } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 async function getDashboardData(clerkId: string, email: string) {
-  // Upsert user in database on first visit
   const user = await db.user.upsert({
     where: { clerkId },
-    update: {
-      email,
-    },
-    create: {
-      clerkId,
-      email,
-      credits: 3,
-    },
+    update: { email },
+    create: { clerkId, email, credits: 999 },
     include: {
-      resumes: {
-        orderBy: { updatedAt: "desc" },
-        take: 5,
-      },
+      resumes: { orderBy: { updatedAt: "desc" }, take: 5 },
+      atsReports: { orderBy: { createdAt: "desc" }, take: 5 },
+      coverLetters: { orderBy: { createdAt: "desc" }, take: 1 },
     },
   });
-
   return user;
 }
 
@@ -32,26 +22,29 @@ const quickActions = [
   {
     icon: Plus,
     label: "New Resume",
-    description: "Start from scratch with AI",
+    description: "AI builds it in seconds",
     href: "/dashboard/resumes/new",
     gradient: "from-violet-500 to-indigo-500",
     shadow: "shadow-violet-500/20",
+    badge: "Most Popular",
   },
   {
     icon: ScanText,
     label: "ATS Scanner",
-    description: "Check your resume score",
+    description: "Score your resume instantly",
     href: "/dashboard/ats",
     gradient: "from-indigo-500 to-blue-500",
     shadow: "shadow-indigo-500/20",
+    badge: null,
   },
   {
     icon: PenLine,
     label: "Cover Letter",
-    description: "Generate in seconds",
+    description: "Tailored to any job in 1-click",
     href: "/dashboard/cover-letter",
     gradient: "from-pink-500 to-rose-500",
     shadow: "shadow-pink-500/20",
+    badge: null,
   },
 ];
 
@@ -70,16 +63,32 @@ export default async function DashboardPage() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
+  const avgScore = user && user.atsReports.length > 0
+    ? Math.round(user.atsReports.reduce((s: number, r: { score: number }) => s + r.score, 0) / user.atsReports.length)
+    : null;
+
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto">
+
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-white">
-          {greeting}, {firstName} ðŸ‘‹
-        </h1>
+        <div className="flex items-center gap-3 mb-1">
+          <h1 className="text-2xl md:text-3xl font-bold text-white">
+            {greeting}, {firstName} &#128075;
+          </h1>
+          {/* Pro Unlocked Badge */}
+          <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold tracking-wide">
+            <Zap className="w-3 h-3" />
+            PRO UNLOCKED
+          </span>
+        </div>
         <p className="text-zinc-400 mt-1">
           {user ? (
-            <>You have <span className="text-violet-400 font-semibold">{user.credits} AI credits</span> remaining.</>
+            <>
+              All AI features are{" "}
+              <span className="text-emerald-400 font-semibold">unlocked for free</span>
+              {" "}-- build unlimited resumes, score your ATS, generate cover letters.
+            </>
           ) : (
             <>You are using ResumeAI in Guest Mode. <Link href="/sign-in" className="text-violet-400 hover:underline">Sign in</Link> to save your progress.</>
           )}
@@ -89,32 +98,78 @@ export default async function DashboardPage() {
       {/* Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
-          { label: "Resumes Created", value: user ? user.resumes.length : 0, icon: FileText, color: "text-violet-400" },
-          { label: "AI Credits Left", value: user ? user.credits : "âˆž", icon: Sparkles, color: "text-indigo-400" },
-          { label: "ATS Reports", value: 0, icon: ScanText, color: "text-pink-400" },
-          { label: "Avg. ATS Score", value: "--", icon: TrendingUp, color: "text-emerald-400" },
-        ].map(({ label, value, icon: Icon, color }) => (
+          {
+            label: "Resumes Created",
+            value: user ? user.resumes.length : 0,
+            icon: FileText,
+            color: "text-violet-400",
+            bg: "bg-violet-500/10",
+          },
+          {
+            label: "ATS Reports Run",
+            value: user ? user.atsReports.length : 0,
+            icon: ScanText,
+            color: "text-indigo-400",
+            bg: "bg-indigo-500/10",
+          },
+          {
+            label: "Avg. ATS Score",
+            value: avgScore ? `${avgScore}/100` : "--",
+            icon: TrendingUp,
+            color: "text-pink-400",
+            bg: "bg-pink-500/10",
+          },
+          {
+            label: "Cover Letters",
+            value: user ? user.coverLetters.length : 0,
+            icon: PenLine,
+            color: "text-emerald-400",
+            bg: "bg-emerald-500/10",
+          },
+        ].map(({ label, value, icon: Icon, color, bg }) => (
           <div
             key={label}
-            className="rounded-2xl border border-white/10 bg-zinc-900/50 p-5 backdrop-blur-sm"
+            className="rounded-2xl border border-white/10 bg-zinc-900/50 p-5 backdrop-blur-sm hover:border-white/20 transition-all"
           >
-            <Icon className={`w-5 h-5 ${color} mb-3`} />
+            <div className={`inline-flex items-center justify-center w-9 h-9 rounded-xl ${bg} mb-3`}>
+              <Icon className={`w-4.5 h-4.5 ${color}`} />
+            </div>
             <p className="text-2xl font-bold text-white">{value}</p>
             <p className="text-xs text-zinc-500 mt-1">{label}</p>
           </div>
         ))}
       </div>
 
+      {/* Free Pro Banner */}
+      <div className="mb-8 rounded-2xl border border-emerald-500/20 bg-gradient-to-r from-emerald-500/10 via-indigo-500/5 to-violet-500/10 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 shadow-lg shadow-emerald-500/30 shrink-0">
+          <Star className="w-6 h-6 text-white" />
+        </div>
+        <div className="flex-1">
+          <p className="text-sm font-bold text-white">You are an Early Adopter -- All Pro Features Unlocked!</p>
+          <p className="text-xs text-zinc-400 mt-0.5">Unlimited AI resumes, ATS scans, cover letters and more -- completely free, forever.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Shield className="w-4 h-4 text-emerald-400" />
+          <span className="text-xs font-semibold text-emerald-400">Free Forever</span>
+        </div>
+      </div>
+
       {/* Quick Actions */}
       <div className="mb-8">
         <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-widest mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {quickActions.map(({ icon: Icon, label, description, href, gradient, shadow }) => (
+          {quickActions.map(({ icon: Icon, label, description, href, gradient, shadow, badge }) => (
             <Link
               key={label}
               href={href}
-              className={`group relative rounded-2xl border border-white/10 bg-zinc-900/50 p-6 hover:border-white/20 transition-all duration-300 hover:-translate-y-0.5`}
+              className="group relative rounded-2xl border border-white/10 bg-zinc-900/50 p-6 hover:border-white/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
             >
+              {badge && (
+                <span className="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-500/30">
+                  {badge}
+                </span>
+              )}
               <div className={`inline-flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br ${gradient} shadow-lg ${shadow} mb-4`}>
                 <Icon className="w-5 h-5 text-white" />
               </div>
@@ -138,25 +193,26 @@ export default async function DashboardPage() {
         </div>
 
         {!user || user.resumes.length === 0 ? (
-          /* Empty State */
           <div className="rounded-2xl border border-dashed border-white/10 bg-zinc-900/30 p-12 text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-zinc-800 mb-4">
-              <FileText className="w-6 h-6 text-zinc-600" />
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500/20 to-indigo-500/20 border border-violet-500/20 mb-4">
+              <Sparkles className="w-6 h-6 text-violet-400" />
             </div>
-            <h3 className="text-sm font-semibold text-zinc-400 mb-2">{!user ? "Guest Mode" : "No resumes yet"}</h3>
+            <h3 className="text-sm font-semibold text-zinc-300 mb-2">
+              {!user ? "Guest Mode" : "Create your first resume"}
+            </h3>
             <p className="text-xs text-zinc-600 mb-6 max-w-xs mx-auto">
-              {!user 
-                ? "You're browsing as a guest. Generated resumes won't be saved here." 
-                : "Create your first AI-powered resume in minutes. Our AI will help you craft the perfect content."}
+              {!user
+                ? "Sign in to save and manage your AI-generated resumes."
+                : "Our AI crafts a professional, ATS-optimized resume tailored to any job -- in under 60 seconds."}
             </p>
             <Button
               size="sm"
-              className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white border-0 gap-1.5"
+              className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white border-0 gap-1.5 shadow-lg shadow-violet-500/25"
               asChild
             >
               <Link href="/dashboard/resumes/new">
                 <Plus className="w-3.5 h-3.5" />
-                {user ? "Create my first resume" : "Create a Resume"}
+                {user ? "Build my first resume" : "Get started free"}
               </Link>
             </Button>
           </div>
@@ -189,4 +245,3 @@ export default async function DashboardPage() {
     </div>
   );
 }
-
