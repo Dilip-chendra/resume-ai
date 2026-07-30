@@ -5,8 +5,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { generateCoverLetterAction } from "@/core/use-cases/resume.actions";
 import { Button } from "@/components/ui/button";
 import {
-  PenLine, Loader2, CheckCircle2, AlertCircle, Sparkles, Copy, FileText
+  PenLine, Loader2, CheckCircle2, AlertCircle, Sparkles, Copy, FileText, Download, Printer
 } from "lucide-react";
+import { ResumeRenderer } from "./resume-renderer";
+import { exportResumePdf } from "@/lib/pdf-export";
 
 interface ResumeChoice {
   id: string;
@@ -25,6 +27,7 @@ export function CoverLetterForm({ resumes }: { resumes: ResumeChoice[] }) {
   const [error, setError] = useState("");
   const [tone, setTone] = useState<typeof tones[number]["value"]>("professional");
   const [copied, setCopied] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [selectedResume, setSelectedResume] = useState<string>(resumes.length > 0 ? resumes[0].id : "");
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -53,9 +56,34 @@ export function CoverLetterForm({ resumes }: { resumes: ResumeChoice[] }) {
     setTimeout(() => setCopied(false), 2000);
   }
 
+  async function handleDownloadPdf() {
+    if (exporting) return;
+    setExporting(true);
+    try {
+      await exportResumePdf("cv-paper", `Cover_Letter`);
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
-    <div className="space-y-8">
-      {!result ? (
+    <>
+      <style>{`
+        @media print {
+          body * { visibility: hidden !important; }
+          #cv-paper, #cv-paper * { visibility: visible !important; }
+          #cv-paper {
+            position: fixed !important;
+            top: 0 !important; left: 0 !important;
+            width: 100% !important;
+            padding: 18mm 20mm !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+          }
+        }
+      `}</style>
+      <div className="space-y-8">
+        {!result ? (
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Source Resume */}
           {resumes.length > 0 ? (
@@ -198,19 +226,45 @@ export function CoverLetterForm({ resumes }: { resumes: ResumeChoice[] }) {
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
               <FileText className="w-5 h-5 text-pink-400" /> Your Cover Letter
             </h3>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleCopy}
-              className="gap-2 bg-zinc-900 border-white/10 hover:bg-white/5"
-            >
-              {copied ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-              {copied ? "Copied" : "Copy to Clipboard"}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopy}
+                className="gap-2 bg-zinc-900 border-white/10 hover:bg-white/5 text-white"
+              >
+                {copied ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                {copied ? "Copied" : "Copy Text"}
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleDownloadPdf}
+                disabled={exporting}
+                className="gap-2 bg-gradient-to-r from-pink-600 to-rose-600 text-white border-0 hover:from-pink-500 hover:to-rose-500"
+              >
+                {exporting ? (
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+                {exporting ? "Generating..." : "Download PDF"}
+              </Button>
+            </div>
           </div>
           
-          <div className="rounded-xl border border-white/10 bg-zinc-900 p-6 whitespace-pre-wrap text-sm text-zinc-300 leading-relaxed font-sans shadow-inner">
-            {result}
+          <div className="overflow-x-auto pb-4 flex justify-center">
+            <div
+              id="cv-paper"
+              className="bg-white shadow-2xl w-full"
+              style={{
+                maxWidth: "720px",
+                minHeight: "960px",
+                padding: "44px 52px",
+                fontFamily: "'Times New Roman', Times, serif",
+              }}
+            >
+              <ResumeRenderer text={result} />
+            </div>
           </div>
 
           <Button
@@ -223,5 +277,6 @@ export function CoverLetterForm({ resumes }: { resumes: ResumeChoice[] }) {
         </motion.div>
       )}
     </div>
+    </>
   );
 }
