@@ -6,16 +6,16 @@ import React from "react";
 function sanitizeText(text: string): string {
   return text
     // Replace common corrupted emoji sequences with text equivalents
-    .replace(/[\u{1F4C4}]/gu, "")   // page/document emojis
-    .replace(/[\u{1F4BB}]/gu, "")   // laptop
-    .replace(/[\u{1F393}]/gu, "")   // graduation cap
-    .replace(/[\u{1F3C6}]/gu, "")   // trophy
-    .replace(/[\u{2728}]/gu, "")    // sparkles
-    .replace(/[\u{1F4C8}]/gu, "")   // chart
-    .replace(/[\u{2705}]/gu, "")    // check mark
-    .replace(/[\u{1F680}]/gu, "")   // rocket
-    .replace(/[\u{1F4AA}]/gu, "")   // muscle
-    .replace(/[\u{1F4A1}]/gu, "")   // bulb
+    .replace(/[\u{1F4C4}]/gu, "")
+    .replace(/[\u{1F4BB}]/gu, "")
+    .replace(/[\u{1F393}]/gu, "")
+    .replace(/[\u{1F3C6}]/gu, "")
+    .replace(/[\u{2728}]/gu, "")
+    .replace(/[\u{1F4C8}]/gu, "")
+    .replace(/[\u{2705}]/gu, "")
+    .replace(/[\u{1F680}]/gu, "")
+    .replace(/[\u{1F4AA}]/gu, "")
+    .replace(/[\u{1F4A1}]/gu, "")
     // Remove any remaining emoji/pictograph ranges
     .replace(/[\u{1F300}-\u{1FFFF}]/gu, "")
     .replace(/[\u{2600}-\u{27BF}]/gu, "")
@@ -41,16 +41,16 @@ export function ResumeRenderer({ text }: ResumeRendererProps) {
   const clean = sanitizeText(text);
   const lines = clean.split("\n");
   const result: React.ReactNode[] = [];
-  let bulletItems: string[] = [];
+  let bulletItems: React.ReactNode[] = [];
   let nameSet = false;
 
   const flushBullets = (key: string | number) => {
     if (bulletItems.length > 0) {
       result.push(
-        <ul key={`ul-${key}`} className="mt-1 mb-2 space-y-[3px] pl-0 list-none">
+        <ul key={`ul-${key}`} className="mt-1 mb-[10px] list-none pl-1">
           {bulletItems.map((item, i) => (
-            <li key={i} className="text-[12.5px] leading-[1.55] text-zinc-700 flex gap-2">
-              <span className="shrink-0 text-zinc-500 mt-[1px]">•</span>
+            <li key={i} className="text-[12pt] leading-[1.35] text-black flex items-start gap-[6px] mb-[3px]">
+              <span className="shrink-0 mt-[1px] text-[10pt]">•</span>
               <span>{item}</span>
             </li>
           ))}
@@ -60,26 +60,58 @@ export function ResumeRenderer({ text }: ResumeRendererProps) {
     }
   };
 
+  // Helper to extract date from string
+  const extractDate = (str: string) => {
+    // Looks for patterns like "Nov 2025 - Jan 2026", "2023 - 2027", "Mar 2024 - Present"
+    const dateRegex = /((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|20\d{2})\s*(?:-|–|to)\s*(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|20\d{2}|Present|Current))/i;
+    const match = str.match(dateRegex);
+    if (match) {
+      return {
+        textWithoutDate: str.replace(match[0], "").trim().replace(/(^-\s*|\s*-$)/g, "").replace(/(^\|\s*|\s*\|$)/g, "").trim(),
+        date: match[0],
+      };
+    }
+    return null;
+  };
+
+  // Helper to parse bold markdown inline
+  const renderInlineMarkdown = (content: string) => {
+    const boldRegex = /\*\*(.*?)\*\*/g;
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
+    let match;
+    while ((match = boldRegex.exec(content)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(content.substring(lastIndex, match.index));
+      }
+      parts.push(<strong key={lastIndex} className="font-bold">{match[1]}</strong>);
+      lastIndex = match.index + match[0].length;
+    }
+    if (lastIndex < content.length) {
+      parts.push(content.substring(lastIndex));
+    }
+    return parts.length > 0 ? <>{parts}</> : content;
+  };
+
   lines.forEach((line, i) => {
     const trimmed = line.trim();
 
     if (!trimmed) {
       flushBullets(`blank-${i}`);
-      result.push(<div key={`sp-${i}`} className="h-1.5" />);
+      result.push(<div key={`sp-${i}`} className="h-1" />);
       return;
     }
 
-    // Section divider
+    // Section divider - ignore because we auto-add border under section headers
     if (/^[-─=]{3,}$/.test(trimmed)) {
       flushBullets(`hr-${i}`);
-      result.push(<hr key={`hr-${i}`} className="border-zinc-300 my-2" />);
-      return;
+      return; 
     }
 
     // Bullet point (•, -, *, or ►)
     if (/^[•\-\*►]/.test(trimmed)) {
-      const content = trimmed.replace(/^[•\-\*►]\s*/, "").trim();
-      bulletItems.push(content);
+      let content = trimmed.replace(/^[•\-\*►]\s*/, "").trim();
+      bulletItems.push(renderInlineMarkdown(content));
       return;
     }
 
@@ -89,73 +121,134 @@ export function ResumeRenderer({ text }: ResumeRendererProps) {
     if (!nameSet) {
       nameSet = true;
       result.push(
-        <h1 key={`name-${i}`} className="text-[22px] font-bold text-center text-zinc-900 tracking-wide mb-1 font-sans">
-          {trimmed}
+        <h1 key={`name-${i}`} className="text-[26pt] font-bold text-center text-black tracking-tight mb-[4px] font-serif">
+          {trimmed.replace(/\*\*/g, "")}
         </h1>
       );
       return;
     }
 
-    // Contact line (email, phone, LinkedIn, pipes)
+    // Contact line (email, phone, LinkedIn, GitHub)
     if (
       trimmed.includes("@") ||
       trimmed.includes("linkedin.com") ||
       trimmed.includes("github.com") ||
-      (trimmed.includes("|") && trimmed.length < 200 && !trimmed.includes("•"))
+      (trimmed.includes("|") && trimmed.length < 200 && !trimmed.includes("•") && !trimmed.match(/20\d{2}/)) // Exclude experience lines
     ) {
+      // Clean up "Email: ", "Phone: " to save space and look cleaner
+      let contactLine = trimmed
+        .replace(/Email:\s*/gi, "")
+        .replace(/Phone:\s*/gi, "")
+        .replace(/LinkedIn:\s*/gi, "")
+        .replace(/GitHub:\s*/gi, "");
+      
       result.push(
-        <p key={`contact-${i}`} className="text-[11.5px] text-center text-zinc-500 mb-2 leading-relaxed">
-          {trimmed}
+        <p key={`contact-${i}`} className="text-[10pt] text-center text-black mb-[8px] leading-relaxed">
+          {contactLine}
         </p>
       );
       return;
     }
 
-    // Section header — ALL CAPS, short
+    // Section header — ALL CAPS, short (or Title Case if followed by line divider)
+    const isAllCaps = trimmed === trimmed.toUpperCase() && /[A-Z]/.test(trimmed);
     const isHeader =
-      trimmed === trimmed.toUpperCase() &&
+      (isAllCaps || trimmed === "Professional Summary" || trimmed === "Technical Skills" || trimmed === "Internship Experience" || trimmed === "Experience" || trimmed === "Projects" || trimmed === "Education" || trimmed === "Certifications" || trimmed === "Leadership Activities") &&
       trimmed.length > 2 &&
-      trimmed.length < 60 &&
-      /^[A-Z\s\/&\-]+$/.test(trimmed);
+      trimmed.length < 60;
 
     if (isHeader) {
       result.push(
-        <div key={`sec-${i}`} className="mt-5 mb-1">
-          <h2 className="text-[11px] font-extrabold tracking-[0.15em] text-zinc-800 uppercase border-b-2 border-zinc-800 pb-0.5">
-            {trimmed}
+        <div key={`sec-${i}`} className="mt-[16px] mb-[6px]">
+          <h2 className="text-[13pt] font-bold text-black uppercase border-b-[1.5px] border-black pb-[2px] tracking-[0.05em] font-serif">
+            {trimmed.replace(/\*\*/g, "")}
           </h2>
         </div>
       );
       return;
     }
 
-    // Job/education entry header: "Company | Role | Date"
-    if (trimmed.includes("|") && !trimmed.includes("@")) {
-      const parts = trimmed.split("|").map((p) => p.trim());
+    // Job/education entry header: Usually contains a '|' or a Date
+    const dateInfo = extractDate(trimmed);
+    if ((trimmed.includes("|") || dateInfo) && trimmed.length < 150) {
+      let leftContent = "";
+      let rightContent = "";
+      let bottomContent = "";
+      let bottomItalic = false;
+
+      if (trimmed.includes("|")) {
+        const parts = trimmed.split("|").map((p) => p.trim().replace(/\*\*/g, ""));
+        
+        if (parts.length === 2) {
+          leftContent = parts[0];
+          const rightDateInfo = extractDate(parts[1]);
+          if (rightDateInfo) {
+            bottomContent = rightDateInfo.textWithoutDate;
+            rightContent = rightDateInfo.date;
+            bottomItalic = true; 
+          } else {
+            rightContent = parts[1];
+          }
+        } else if (parts.length >= 3) {
+          leftContent = parts[1];
+          bottomContent = parts[0];
+          rightContent = parts[parts.length - 1];
+          bottomItalic = true;
+        }
+      } else if (dateInfo) {
+        if (dateInfo.textWithoutDate.includes(",")) {
+          const parts = dateInfo.textWithoutDate.split(",");
+          leftContent = parts[0].trim();
+          bottomContent = parts.slice(1).join(",").trim();
+          bottomItalic = true;
+        } else {
+          leftContent = dateInfo.textWithoutDate;
+        }
+        rightContent = dateInfo.date;
+      }
+
       result.push(
-        <div key={`job-${i}`} className="flex items-baseline justify-between gap-2 mt-3">
-          <span className="text-[13px] font-bold text-zinc-800">{parts[0]}</span>
-          <span className="text-[11.5px] text-zinc-500 italic shrink-0">{parts[parts.length - 1]}</span>
+        <div key={`job-${i}`} className="mt-[12px] mb-[4px]">
+          <div className="flex items-baseline justify-between gap-4">
+            <span className="text-[12pt] font-bold text-black">{leftContent}</span>
+            {rightContent && <span className="text-[11pt] text-black shrink-0 font-medium">{rightContent}</span>}
+          </div>
+          {bottomContent && (
+            <div className={`text-[12pt] text-black ${bottomItalic ? "italic" : ""} mt-[2px]`}>
+              {bottomContent}
+            </div>
+          )}
         </div>
       );
-      if (parts.length === 3) {
-        result.push(
-          <p key={`role-${i}`} className="text-[12px] text-zinc-600 font-medium mt-0">
-            {parts[1]}
-          </p>
-        );
-      }
+      return;
+    }
+
+    // Skills line: "Category: Skill1, Skill2..."
+    if (trimmed.includes(":") && trimmed.split(":")[0].length < 35 && !trimmed.startsWith("http")) {
+      const parts = trimmed.split(":");
+      const category = parts[0].replace(/\*\*/g, "").trim();
+      const skills = parts.slice(1).join(":").trim();
+      result.push(
+        <p key={`p-${i}`} className="text-[11.5pt] leading-[1.4] text-black mb-[6px]">
+          <strong className="font-bold text-[12pt]">{category}:</strong> {renderInlineMarkdown(skills)}
+        </p>
+      );
       return;
     }
 
     // Regular paragraph
     result.push(
-      <p key={`p-${i}`} className="text-[12.5px] leading-[1.6] text-zinc-700">
-        {trimmed}
+      <p key={`p-${i}`} className="text-[11.5pt] leading-[1.4] text-black mb-[6px] text-justify">
+        {renderInlineMarkdown(trimmed)}
       </p>
     );
   });
 
   flushBullets("end");
-  return <>{result}</>;
+  
+  return (
+    <div className="text-black font-serif leading-tight">
+      {result}
+    </div>
+  );
 }
