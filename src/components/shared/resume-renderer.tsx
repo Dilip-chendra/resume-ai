@@ -35,9 +35,10 @@ function sanitizeText(text: string): string {
 
 interface ResumeRendererProps {
   text: string;
+  variant?: "resume" | "cover-letter";
 }
 
-export function ResumeRenderer({ text }: ResumeRendererProps) {
+export function ResumeRenderer({ text, variant = "resume" }: ResumeRendererProps) {
   const clean = sanitizeText(text);
   const lines = clean.split("\n");
   const result: React.ReactNode[] = [];
@@ -117,8 +118,8 @@ export function ResumeRenderer({ text }: ResumeRendererProps) {
 
     flushBullets(i);
 
-    // Name — first non-empty line
-    if (!nameSet) {
+    // Name — first non-empty line (Only for Resumes)
+    if (variant === "resume" && !nameSet) {
       nameSet = true;
       result.push(
         <h1 key={`name-${i}`} className="text-[26pt] font-bold text-center text-black tracking-tight mb-[4px] font-serif">
@@ -128,12 +129,14 @@ export function ResumeRenderer({ text }: ResumeRendererProps) {
       return;
     }
 
-    // Contact line (email, phone, LinkedIn, GitHub)
+    // Contact line (email, phone, LinkedIn, GitHub) - Only for Resumes
     if (
-      trimmed.includes("@") ||
-      trimmed.includes("linkedin.com") ||
-      trimmed.includes("github.com") ||
-      (trimmed.includes("|") && trimmed.length < 200 && !trimmed.includes("•") && !trimmed.match(/20\d{2}/)) // Exclude experience lines
+      variant === "resume" && (
+        trimmed.includes("@") ||
+        trimmed.includes("linkedin.com") ||
+        trimmed.includes("github.com") ||
+        (trimmed.includes("|") && trimmed.length < 200 && !trimmed.includes("•") && !trimmed.match(/20\d{2}/)) // Exclude experience lines
+      )
     ) {
       // Clean up "Email: ", "Phone: " to save space and look cleaner
       let contactLine = trimmed
@@ -150,9 +153,10 @@ export function ResumeRenderer({ text }: ResumeRendererProps) {
       return;
     }
 
-    // Section header — ALL CAPS, short (or Title Case if followed by line divider)
+    // Section header — ALL CAPS, short (or Title Case if followed by line divider) - Only for Resumes
     const isAllCaps = trimmed === trimmed.toUpperCase() && /[A-Z]/.test(trimmed);
     const isHeader =
+      variant === "resume" &&
       (isAllCaps || trimmed === "Professional Summary" || trimmed === "Technical Skills" || trimmed === "Internship Experience" || trimmed === "Experience" || trimmed === "Projects" || trimmed === "Education" || trimmed === "Certifications" || trimmed === "Leadership Activities") &&
       trimmed.length > 2 &&
       trimmed.length < 60;
@@ -168,9 +172,9 @@ export function ResumeRenderer({ text }: ResumeRendererProps) {
       return;
     }
 
-    // Job/education entry header: Usually contains a '|' or a Date
+    // Job/education entry header: Usually contains a '|' or a Date - Only for Resumes
     const dateInfo = extractDate(trimmed);
-    if ((trimmed.includes("|") || dateInfo) && trimmed.length < 150) {
+    if (variant === "resume" && (trimmed.includes("|") || dateInfo) && trimmed.length < 150) {
       let leftContent = "";
       let rightContent = "";
       let bottomContent = "";
@@ -223,8 +227,8 @@ export function ResumeRenderer({ text }: ResumeRendererProps) {
       return;
     }
 
-    // Skills line: "Category: Skill1, Skill2..."
-    if (trimmed.includes(":") && trimmed.split(":")[0].length < 35 && !trimmed.startsWith("http")) {
+    // Skills line: "Category: Skill1, Skill2..." - Only for Resumes
+    if (variant === "resume" && trimmed.includes(":") && trimmed.split(":")[0].length < 35 && !trimmed.startsWith("http")) {
       const parts = trimmed.split(":");
       const category = parts[0].replace(/\*\*/g, "").trim();
       const skills = parts.slice(1).join(":").trim();
@@ -237,8 +241,12 @@ export function ResumeRenderer({ text }: ResumeRendererProps) {
     }
 
     // Regular paragraph
+    // If it's a cover letter, add more spacing between paragraphs
+    const isCoverLetter = variant === "cover-letter";
+    const mb = isCoverLetter ? "mb-[14px]" : "mb-[6px]";
+    
     result.push(
-      <p key={`p-${i}`} className="text-[11.5pt] leading-[1.4] text-black mb-[6px] text-justify">
+      <p key={`p-${i}`} className={`text-[11.5pt] leading-[1.6] text-black ${mb} ${isCoverLetter ? "" : "text-justify"}`}>
         {renderInlineMarkdown(trimmed)}
       </p>
     );

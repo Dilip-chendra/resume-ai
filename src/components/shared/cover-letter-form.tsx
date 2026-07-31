@@ -264,7 +264,7 @@ export function CoverLetterForm({ resumes }: { resumes: ResumeChoice[] }) {
                 fontFamily: "'Times New Roman', Times, serif",
               }}
             >
-              <ResumeRenderer text={result} />
+              <ResumeRenderer text={result} variant="cover-letter" />
             </div>
           </div>
 
