@@ -74,7 +74,7 @@ export function CoverLetterForm({ resumes }: { resumes: ResumeChoice[] }) {
           body * { visibility: hidden !important; }
           #cv-paper, #cv-paper * { visibility: visible !important; }
           #cv-paper {
-            position: fixed !important;
+            position: absolute !important;
             top: 0 !important; left: 0 !important;
             width: 100% !important;
             padding: 18mm 20mm !important;

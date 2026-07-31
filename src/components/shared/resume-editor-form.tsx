@@ -55,7 +55,7 @@ export function ResumeEditorForm({ resume }: { resume: any }) { // eslint-disabl
           body * { visibility: hidden !important; }
           #${PAPER_ID}, #${PAPER_ID} * { visibility: visible !important; }
           #${PAPER_ID} {
-            position: fixed !important;
+            position: absolute !important;
             top: 0 !important; left: 0 !important;
             width: 100% !important;
             padding: 18mm 20mm !important;

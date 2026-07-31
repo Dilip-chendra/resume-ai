@@ -72,7 +72,7 @@ export default function GuestResumePreview() {
           #resume-paper-guest,
           #resume-paper-guest * { visibility: visible !important; }
           #resume-paper-guest {
-            position: fixed !important;
+            position: absolute !important;
             top: 0 !important;
             left: 0 !important;
             width: 100% !important;

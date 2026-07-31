@@ -245,9 +245,21 @@ export function ResumeRenderer({ text, variant = "resume" }: ResumeRendererProps
     const isCoverLetter = variant === "cover-letter";
     const mb = isCoverLetter ? "mb-[14px]" : "mb-[6px]";
     
+    let content = renderInlineMarkdown(trimmed);
+    
+    // Auto-bold specific cover letter phrases or the very last line (Name)
+    if (isCoverLetter) {
+      const isSalutation = /^(Dear |To |Dear Hiring Manager|Sincerely|Best regards|Best,|Regards,)/i.test(trimmed);
+      const isLastLine = i === lines.length - 1 || (lines.slice(i + 1).filter(l => l.trim().length > 0).length === 0);
+      
+      if (isSalutation || (isLastLine && trimmed.length < 40)) {
+        content = <strong className="font-bold">{content}</strong>;
+      }
+    }
+
     result.push(
       <p key={`p-${i}`} className={`text-[11.5pt] leading-[1.6] text-black ${mb} ${isCoverLetter ? "" : "text-justify"}`}>
-        {renderInlineMarkdown(trimmed)}
+        {content}
       </p>
     );
   });
