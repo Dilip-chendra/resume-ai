@@ -1,4 +1,4 @@
-﻿import { UserButton } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { FileText, LayoutDashboard, ScanText, PenLine, Briefcase, Settings, ChevronRight, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -16,7 +16,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex h-screen bg-zinc-950 overflow-hidden">
       {/* Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 border-r border-white/10 bg-zinc-900/50 backdrop-blur-sm shrink-0">
+      <aside className="hidden md:flex flex-col w-64 border-r border-white/10 bg-zinc-900/50 backdrop-blur-sm shrink-0 no-print">
         {/* Logo */}
         <div className="flex items-center gap-2.5 px-6 py-5 border-b border-white/10">
           <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg shadow-violet-500/30">

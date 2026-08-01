@@ -67,26 +67,29 @@ export default function GuestResumePreview() {
       {/* Print-only styles: hide everything except the paper */}
       <style>{`
         @media print {
-          @page { margin: 0; }
-          body * { visibility: hidden !important; }
-          #resume-paper-guest,
-          #resume-paper-guest * { visibility: visible !important; }
+          @page { margin: 1in; }
+          body { background: white !important; }
+          .no-print { display: none !important; }
           #resume-paper-guest {
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
             width: 100% !important;
-            padding: 18mm 20mm !important;
+            padding: 0 !important;
             margin: 0 !important;
             box-shadow: none !important;
             border-radius: 0 !important;
+            height: auto !important;
+            min-height: auto !important;
+            overflow: visible !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start !important;
+            align-items: stretch !important;
           }
         }
       `}</style>
 
       <div className="min-h-screen bg-zinc-950">
         {/* Top Toolbar */}
-        <div className="sticky top-0 z-10 bg-zinc-900/80 backdrop-blur-sm border-b border-white/10 px-6 py-3 flex items-center justify-between">
+        <div className="sticky top-0 z-10 bg-zinc-900/80 backdrop-blur-sm border-b border-white/10 px-6 py-3 flex items-center justify-between no-print">
           <Link
             href="/dashboard/resumes"
             className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors"

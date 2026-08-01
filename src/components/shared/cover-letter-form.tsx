@@ -70,16 +70,23 @@ export function CoverLetterForm({ resumes }: { resumes: ResumeChoice[] }) {
     <>
       <style>{`
         @media print {
-          @page { margin: 0; }
-          body * { visibility: hidden !important; }
-          #cv-paper, #cv-paper * { visibility: visible !important; }
+          @page { margin: 1in; }
+          /* Hide everything except the paper */
+          body { background: white !important; }
+          .no-print { display: none !important; }
           #cv-paper {
-            position: absolute !important;
-            top: 0 !important; left: 0 !important;
             width: 100% !important;
-            padding: 18mm 20mm !important;
+            padding: 0 !important;
             margin: 0 !important;
             box-shadow: none !important;
+            border-radius: 0 !important;
+            height: auto !important;
+            min-height: auto !important;
+            overflow: visible !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start !important;
+            align-items: stretch !important;
           }
         }
       `}</style>
@@ -223,7 +230,7 @@ export function CoverLetterForm({ resumes }: { resumes: ResumeChoice[] }) {
           animate={{ opacity: 1, scale: 1 }}
           className="space-y-6"
         >
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between no-print">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
               <FileText className="w-5 h-5 text-pink-400" /> Your Cover Letter
             </h3>
@@ -270,7 +277,7 @@ export function CoverLetterForm({ resumes }: { resumes: ResumeChoice[] }) {
 
           <Button
             variant="ghost"
-            className="w-full text-zinc-400 hover:text-white"
+            className="w-full text-zinc-400 hover:text-white no-print"
             onClick={() => setResult(null)}
           >
             Generate Another

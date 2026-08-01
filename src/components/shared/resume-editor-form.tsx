@@ -51,23 +51,30 @@ export function ResumeEditorForm({ resume }: { resume: any }) { // eslint-disabl
       {/* Print-only: show ONLY the resume paper */}
       <style>{`
         @media print {
-          @page { margin: 0; }
-          body * { visibility: hidden !important; }
-          #${PAPER_ID}, #${PAPER_ID} * { visibility: visible !important; }
+          @page { margin: 1in; }
+          /* Hide everything except the paper */
+          body { background: white !important; }
+          .no-print { display: none !important; }
           #${PAPER_ID} {
-            position: absolute !important;
-            top: 0 !important; left: 0 !important;
             width: 100% !important;
-            padding: 18mm 20mm !important;
+            padding: 0 !important;
             margin: 0 !important;
             box-shadow: none !important;
+            border-radius: 0 !important;
+            height: auto !important;
+            min-height: auto !important;
+            overflow: visible !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start !important;
+            align-items: stretch !important;
           }
         }
       `}</style>
 
       <div className="flex flex-col h-screen bg-zinc-950 overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-3 border-b border-white/10 bg-zinc-900/60 shrink-0">
+        <div className="flex items-center justify-between px-6 py-3 border-b border-white/10 bg-zinc-900/60 shrink-0 no-print">
           <div className="flex items-center gap-4">
             <Link href="/dashboard/resumes" className="text-zinc-500 hover:text-white transition-colors">
               <ArrowLeft className="w-5 h-5" />
@@ -117,7 +124,7 @@ export function ResumeEditorForm({ resume }: { resume: any }) { // eslint-disabl
         {/* Body — Split Panel */}
         <div className="flex flex-1 overflow-hidden">
           {/* Left: Text Editor */}
-          <div className="w-1/2 border-r border-white/10 flex flex-col bg-zinc-950">
+          <div className="w-1/2 border-r border-white/10 flex flex-col bg-zinc-950 no-print">
             <p className="text-[10px] text-zinc-600 px-4 pt-3 pb-1 font-semibold uppercase tracking-widest">
               Edit Content
             </p>

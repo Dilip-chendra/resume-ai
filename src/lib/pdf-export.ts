@@ -31,9 +31,22 @@ export async function exportResumePdf(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const worker = (html2pdf as any)();
 
+    // Temporarily remove CSS padding from the element so html2pdf margin doesn't double it
+    const originalPadding = element.style.padding;
+    element.style.padding = "0";
+    
+    // Also ensure the element itself doesn't have max-height or overflow hidden during export
+    const originalOverflow = element.style.overflow;
+    const originalMinHeight = element.style.minHeight;
+    const originalHeight = element.style.height;
+    
+    element.style.overflow = "visible";
+    element.style.minHeight = "auto";
+    element.style.height = "auto";
+
     await worker
       .set({
-        margin: [10, 10, 10, 10],
+        margin: [25.4, 25.4, 25.4, 25.4], // 1 inch margins on all sides
         filename: `${safeName}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
@@ -41,6 +54,7 @@ export async function exportResumePdf(
           useCORS: true,
           logging: false,
           letterRendering: true,
+          windowWidth: element.scrollWidth, // ensure layout width matches content
         },
         jsPDF: {
           unit: "mm",
@@ -51,6 +65,12 @@ export async function exportResumePdf(
       })
       .from(element)
       .save();
+      
+    // Restore inline styles
+    element.style.padding = originalPadding;
+    element.style.overflow = originalOverflow;
+    element.style.minHeight = originalMinHeight;
+    element.style.height = originalHeight;
   } catch (err) {
     console.error("[exportResumePdf] Failed, falling back to print:", err);
     window.print();

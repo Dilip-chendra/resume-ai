@@ -48,9 +48,9 @@ export function ResumeRenderer({ text, variant = "resume" }: ResumeRendererProps
   const flushBullets = (key: string | number) => {
     if (bulletItems.length > 0) {
       result.push(
-        <ul key={`ul-${key}`} className="mt-1 mb-[10px] list-none pl-1">
+        <ul key={`ul-${key}`} className="mt-1 mb-[10px] list-none pl-1 break-inside-avoid">
           {bulletItems.map((item, i) => (
-            <li key={i} className="text-[12pt] leading-[1.35] text-black flex items-start gap-[6px] mb-[3px]">
+            <li key={i} className="text-[12pt] leading-[1.35] text-black flex items-start gap-[6px] mb-[3px] break-inside-avoid">
               <span className="shrink-0 mt-[1px] text-[10pt]">•</span>
               <span>{item}</span>
             </li>
@@ -163,7 +163,7 @@ export function ResumeRenderer({ text, variant = "resume" }: ResumeRendererProps
 
     if (isHeader) {
       result.push(
-        <div key={`sec-${i}`} className="mt-[16px] mb-[6px]">
+        <div key={`sec-${i}`} className="mt-[16px] mb-[6px] break-inside-avoid">
           <h2 className="text-[13pt] font-bold text-black uppercase border-b-[1.5px] border-black pb-[2px] tracking-[0.05em] font-serif">
             {trimmed.replace(/\*\*/g, "")}
           </h2>
@@ -212,7 +212,7 @@ export function ResumeRenderer({ text, variant = "resume" }: ResumeRendererProps
       }
 
       result.push(
-        <div key={`job-${i}`} className="mt-[12px] mb-[4px]">
+        <div key={`job-${i}`} className="mt-[12px] mb-[4px] break-inside-avoid">
           <div className="flex items-baseline justify-between gap-4">
             <span className="text-[12pt] font-bold text-black">{leftContent}</span>
             {rightContent && <span className="text-[11pt] text-black shrink-0 font-medium">{rightContent}</span>}
@@ -233,7 +233,7 @@ export function ResumeRenderer({ text, variant = "resume" }: ResumeRendererProps
       const category = parts[0].replace(/\*\*/g, "").trim();
       const skills = parts.slice(1).join(":").trim();
       result.push(
-        <p key={`p-${i}`} className="text-[11.5pt] leading-[1.4] text-black mb-[6px]">
+        <p key={`p-${i}`} className="text-[11.5pt] leading-[1.4] text-black mb-[6px] break-inside-avoid">
           <strong className="font-bold text-[12pt]">{category}:</strong> {renderInlineMarkdown(skills)}
         </p>
       );
@@ -258,7 +258,7 @@ export function ResumeRenderer({ text, variant = "resume" }: ResumeRendererProps
     }
 
     result.push(
-      <p key={`p-${i}`} className={`text-[11.5pt] leading-[1.6] text-black ${mb} ${isCoverLetter ? "" : "text-justify"}`}>
+      <p key={`p-${i}`} className={`text-[11.5pt] leading-[1.6] text-black ${mb} ${isCoverLetter ? "" : "text-justify"} break-inside-avoid`}>
         {content}
       </p>
     );
