@@ -1,4 +1,4 @@
-﻿import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { FileText, ScanText, PenLine, TrendingUp, Plus, ArrowRight, Sparkles, Clock, Zap, Shield, Star } from "lucide-react";
 import Link from "next/link";
@@ -13,9 +13,19 @@ async function getDashboardData(clerkId: string, email: string) {
       resumes: { orderBy: { updatedAt: "desc" }, take: 5 },
       atsReports: { orderBy: { createdAt: "desc" }, take: 5 },
       coverLetters: { orderBy: { createdAt: "desc" }, take: 1 },
+      _count: {
+        select: { resumes: true, atsReports: true, coverLetters: true }
+      }
     },
   });
-  return user;
+
+  // Calculate true average score
+  const avgScoreAgg = await db.atsReport.aggregate({
+    _avg: { score: true },
+    where: { userId: user.id }
+  });
+
+  return { ...user, avgScore: avgScoreAgg._avg.score ? Math.round(avgScoreAgg._avg.score) : null };
 }
 
 const quickActions = [
@@ -60,12 +70,7 @@ export default async function DashboardPage() {
   }
 
   const firstName = clerkUser?.firstName || (userId ? "there" : "Guest");
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-
-  const avgScore = user && user.atsReports.length > 0
-    ? Math.round(user.atsReports.reduce((s: number, r: { score: number }) => s + r.score, 0) / user.atsReports.length)
-    : null;
+  const isPro = user?.tier === "PRO" || user?.credits === 999;
 
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto">
@@ -74,13 +79,15 @@ export default async function DashboardPage() {
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-1">
           <h1 className="text-2xl md:text-3xl font-bold text-white">
-            {greeting}, {firstName} &#128075;
+            Welcome back, {firstName} 👋
           </h1>
           {/* Pro Unlocked Badge */}
-          <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold tracking-wide">
-            <Zap className="w-3 h-3" />
-            PRO UNLOCKED
-          </span>
+          {isPro && (
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold tracking-wide">
+              <Zap className="w-3 h-3" />
+              PRO UNLOCKED
+            </span>
+          )}
         </div>
         <p className="text-zinc-400 mt-1">
           {user ? (
@@ -100,28 +107,28 @@ export default async function DashboardPage() {
         {[
           {
             label: "Resumes Created",
-            value: user ? user.resumes.length : 0,
+            value: user ? user._count.resumes : 0,
             icon: FileText,
             color: "text-violet-400",
             bg: "bg-violet-500/10",
           },
           {
             label: "ATS Reports Run",
-            value: user ? user.atsReports.length : 0,
+            value: user ? user._count.atsReports : 0,
             icon: ScanText,
             color: "text-indigo-400",
             bg: "bg-indigo-500/10",
           },
           {
             label: "Avg. ATS Score",
-            value: avgScore ? `${avgScore}/100` : "--",
+            value: user?.avgScore ? `${user.avgScore}/100` : "--",
             icon: TrendingUp,
             color: "text-pink-400",
             bg: "bg-pink-500/10",
           },
           {
             label: "Cover Letters",
-            value: user ? user.coverLetters.length : 0,
+            value: user ? user._count.coverLetters : 0,
             icon: PenLine,
             color: "text-emerald-400",
             bg: "bg-emerald-500/10",
@@ -141,19 +148,21 @@ export default async function DashboardPage() {
       </div>
 
       {/* Free Pro Banner */}
-      <div className="mb-8 rounded-2xl border border-emerald-500/20 bg-gradient-to-r from-emerald-500/10 via-indigo-500/5 to-violet-500/10 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 shadow-lg shadow-emerald-500/30 shrink-0">
-          <Star className="w-6 h-6 text-white" />
+      {isPro && (
+        <div className="mb-8 rounded-2xl border border-emerald-500/20 bg-gradient-to-r from-emerald-500/10 via-indigo-500/5 to-violet-500/10 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 shadow-lg shadow-emerald-500/30 shrink-0">
+            <Star className="w-6 h-6 text-white" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-bold text-white">You are an Early Adopter -- All Pro Features Unlocked!</p>
+            <p className="text-xs text-zinc-400 mt-0.5">Unlimited AI resumes, ATS scans, cover letters and more -- completely free, forever.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-emerald-400" />
+            <span className="text-xs font-semibold text-emerald-400">Free Forever</span>
+          </div>
         </div>
-        <div className="flex-1">
-          <p className="text-sm font-bold text-white">You are an Early Adopter -- All Pro Features Unlocked!</p>
-          <p className="text-xs text-zinc-400 mt-0.5">Unlimited AI resumes, ATS scans, cover letters and more -- completely free, forever.</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Shield className="w-4 h-4 text-emerald-400" />
-          <span className="text-xs font-semibold text-emerald-400">Free Forever</span>
-        </div>
-      </div>
+      )}
 
       {/* Quick Actions */}
       <div className="mb-8">

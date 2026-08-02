@@ -2,9 +2,13 @@ import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { JobCard } from "@/components/shared/job-card";
 import { AddJobForm } from "@/components/shared/add-job-form";
-import { Briefcase, Plus } from "lucide-react";
+import { Briefcase } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+
+export const metadata = {
+  title: "Job Tracker — ResumeAI",
+};
 
 export default async function JobsPage() {
   const { userId } = await auth();

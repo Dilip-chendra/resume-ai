@@ -1,9 +1,8 @@
 import { Metadata } from "next";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
-import { FeaturesSection } from "@/components/shared/features-section";
 import { CTASection } from "@/components/shared/cta-section";
-import { CheckCircle2, Sparkles, FileText, BarChart, FileBadge, Zap, History, Download, Link2, Briefcase } from "lucide-react";
+import { Sparkles, FileText, BarChart, FileBadge, Zap, History, Download, Link2, Briefcase } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Features | Resume AI",

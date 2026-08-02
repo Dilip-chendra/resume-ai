@@ -51,23 +51,26 @@ export function ResumeEditorForm({ resume }: { resume: any }) { // eslint-disabl
       {/* Print-only: show ONLY the resume paper */}
       <style>{`
         @media print {
-          @page { margin: 1in; }
-          /* Hide everything except the paper */
-          body { background: white !important; }
-          .no-print { display: none !important; }
+          @page { margin: 0; size: a4 portrait; }
+          body * {
+            visibility: hidden;
+          }
+          #${PAPER_ID}, #${PAPER_ID} * {
+            visibility: visible;
+          }
           #${PAPER_ID} {
+            position: absolute;
+            left: 0;
+            top: 0;
             width: 100% !important;
-            padding: 0 !important;
             margin: 0 !important;
+            padding: 0 !important;
             box-shadow: none !important;
-            border-radius: 0 !important;
-            height: auto !important;
-            min-height: auto !important;
-            overflow: visible !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: flex-start !important;
-            align-items: stretch !important;
+          }
+          .a4-page {
+            box-shadow: none !important;
+            margin: 0 !important;
+            break-after: page;
           }
         }
       `}</style>
@@ -138,16 +141,7 @@ export function ResumeEditorForm({ resume }: { resume: any }) { // eslint-disabl
 
           {/* Right: Live Preview */}
           <div className="w-1/2 bg-zinc-900/30 overflow-y-auto p-6 flex justify-center">
-            <div
-              id={PAPER_ID}
-              className="bg-white shadow-2xl w-full"
-              style={{
-                maxWidth: "720px",
-                minHeight: "960px",
-                padding: "44px 52px",
-                fontFamily: "'Times New Roman', Times, serif",
-              }}
-            >
+            <div id={PAPER_ID} className="w-full max-w-[210mm]">
               <ResumeRenderer text={content} />
             </div>
           </div>

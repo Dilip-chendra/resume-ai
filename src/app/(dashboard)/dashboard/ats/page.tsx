@@ -18,7 +18,10 @@ export default async function ATSScannerPage() {
     const user = await db.user.findUnique({
       where: { clerkId: userId },
       include: {
-        resumes: { select: { id: true, title: true } },
+        resumes: { 
+          select: { id: true, title: true },
+          orderBy: { updatedAt: "desc" }
+        },
       }
     });
     

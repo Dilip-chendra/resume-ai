@@ -7,47 +7,34 @@ const footerLinks = {
     { label: "Features", href: "/features" },
     { label: "Pricing", href: "/pricing" },
     { label: "Templates", href: "/templates" },
-    { label: "ATS Scanner", href: "/ats-scanner" },
-    { label: "AI Writer", href: "/ai-writer" },
+    { label: "ATS Scanner", href: "/dashboard/ats" },
+    { label: "Cover Letter", href: "/dashboard/cover-letter" },
   ],
   Resources: [
     { label: "Blog", href: "/blog" },
-    { label: "Resume Tips", href: "/resume-tips" },
-    { label: "Career Advice", href: "/career-advice" },
-    { label: "Interview Prep", href: "/interview-prep" },
     { label: "Help Center", href: "/help" },
-  ],
-  Company: [
     { label: "About", href: "/about" },
+    { label: "Contact", href: "/contact" },
     { label: "Careers", href: "/careers" },
+  ],
+  Legal: [
     { label: "Privacy Policy", href: "/privacy" },
     { label: "Terms of Service", href: "/terms" },
-    { label: "Contact", href: "/contact" },
+    { label: "Cookie Policy", href: "/cookies" },
   ],
 };
-
-const extraLinks = [
-  { label: "Cookies", href: "/cookies" },
-  { label: "Security", href: "/security" },
-  { label: "Accessibility", href: "/accessibility" },
-  { label: "Status", href: "/status" },
-  { label: "Changelog", href: "/changelog" },
-  { label: "API", href: "/api" },
-  { label: "Docs", href: "/docs" },
-  { label: "Sitemap", href: "/sitemap" },
-];
 
 export function Footer() {
   return (
     <footer className="relative border-t border-white/10 bg-zinc-950 pt-20 pb-10 overflow-hidden">
       {/* Background Gradients for Glassmorphism feel */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1000px] h-[400px] bg-gradient-radial from-violet-600/5 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1000px] h-[400px] bg-gradient-to-b from-violet-600/5 via-transparent to-transparent pointer-events-none" />
 
       <div className="container mx-auto max-w-7xl px-6 relative z-10">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-12 lg:gap-8 mb-16">
           {/* Brand & Mission */}
           <div className="col-span-2 md:col-span-2 lg:col-span-3 pr-8">
-            <Link href="/" className="flex items-center gap-2 mb-6 group inline-flex">
+            <Link href="/" className="flex items-center gap-2 mb-6 group">
               <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg shadow-violet-500/20 group-hover:shadow-violet-500/40 transition-shadow duration-300">
                 <FileText className="w-5 h-5 text-white" />
               </div>
@@ -97,24 +84,16 @@ export function Footer() {
           ))}
         </div>
 
-        {/* Extra Links & Copyright Bar */}
-        <div className="border-t border-white/10 pt-8 flex flex-col lg:flex-row items-center justify-between gap-6">
-          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3">
-            <span className="text-sm text-zinc-500 font-medium">
-              © {new Date().getFullYear()} ResumeAI. Built for professionals.
-            </span>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-center lg:justify-end gap-x-6 gap-y-3">
-            {extraLinks.map(({ label, href }) => (
-              <Link
-                key={label}
-                href={href}
-                className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
-              >
-                {label}
-              </Link>
-            ))}
+        {/* Copyright Bar */}
+        <div className="border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <span className="text-sm text-zinc-500">
+            © {new Date().getFullYear()} ResumeAI. Built for professionals.
+          </span>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            <Link href="/privacy" className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">Terms of Service</Link>
+            <Link href="/cookies" className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">Cookies</Link>
+            <Link href="/help" className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">Help Center</Link>
           </div>
         </div>
       </div>

@@ -27,26 +27,27 @@ export default function HelpPage() {
             How can we help?
           </h1>
           
-          <div className="relative max-w-xl mx-auto mb-16">
+          <form className="relative max-w-xl mx-auto mb-16" action="/help">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <Search className="h-5 w-5 text-zinc-500" />
             </div>
             <input
               type="text"
+              name="q"
               className="block w-full pl-11 pr-4 py-4 bg-zinc-900 border border-white/10 rounded-2xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-shadow shadow-lg"
               placeholder="Search for answers..."
             />
-          </div>
+          </form>
 
           <div className="grid md:grid-cols-3 gap-6 mb-16">
             {helpCategories.map((category) => {
               const Icon = category.icon;
               return (
-                <div key={category.title} className="bg-zinc-900/50 border border-white/10 p-6 rounded-2xl hover:border-white/20 transition-all text-left cursor-pointer group">
+                <Link href="/contact" key={category.title} className="bg-zinc-900/50 border border-white/10 p-6 rounded-2xl hover:border-white/20 hover:bg-zinc-900 transition-all text-left group block">
                   <Icon className="w-8 h-8 text-violet-400 mb-4 group-hover:text-violet-300 transition-colors" />
                   <h3 className="text-lg font-bold mb-2">{category.title}</h3>
                   <p className="text-sm text-zinc-400">{category.desc}</p>
-                </div>
+                </Link>
               );
             })}
           </div>

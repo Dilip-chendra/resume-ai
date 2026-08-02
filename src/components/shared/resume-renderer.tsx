@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 /** Strip or replace problematic unicode characters that appear as boxes/symbols */
 function sanitizeText(text: string): string {
@@ -38,32 +38,20 @@ interface ResumeRendererProps {
   variant?: "resume" | "cover-letter";
 }
 
-export function ResumeRenderer({ text, variant = "resume" }: ResumeRendererProps) {
-  const clean = sanitizeText(text);
-  const lines = clean.split("\n");
-  const result: React.ReactNode[] = [];
-  let bulletItems: React.ReactNode[] = [];
-  let nameSet = false;
+type Block = {
+  id: string;
+  jsx: React.ReactNode;
+};
 
-  const flushBullets = (key: string | number) => {
-    if (bulletItems.length > 0) {
-      result.push(
-        <ul key={`ul-${key}`} className="mt-1 mb-[10px] list-none pl-1 break-inside-avoid">
-          {bulletItems.map((item, i) => (
-            <li key={i} className="text-[12pt] leading-[1.35] text-black flex items-start gap-[6px] mb-[3px] break-inside-avoid">
-              <span className="shrink-0 mt-[1px] text-[10pt]">•</span>
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-      );
-      bulletItems = [];
-    }
-  };
+// 297mm height at 96dpi = 1122.5px. Margins 25.4mm = 96px top/bottom.
+const PRINTABLE_HEIGHT = 1122 - 96 * 2 - 2; 
+
+export function ResumeRenderer({ text, variant = "resume" }: ResumeRendererProps) {
+  const [pages, setPages] = useState<Block[][] | null>(null);
+  const blockRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Helper to extract date from string
   const extractDate = (str: string) => {
-    // Looks for patterns like "Nov 2025 - Jan 2026", "2023 - 2027", "Mar 2024 - Present"
     const dateRegex = /((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|20\d{2})\s*(?:-|–|to)\s*(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|20\d{2}|Present|Current))/i;
     const match = str.match(dateRegex);
     if (match) {
@@ -75,7 +63,6 @@ export function ResumeRenderer({ text, variant = "resume" }: ResumeRendererProps
     return null;
   };
 
-  // Helper to parse bold markdown inline
   const renderInlineMarkdown = (content: string) => {
     const boldRegex = /\*\*(.*?)\*\*/g;
     const parts: React.ReactNode[] = [];
@@ -85,7 +72,7 @@ export function ResumeRenderer({ text, variant = "resume" }: ResumeRendererProps
       if (match.index > lastIndex) {
         parts.push(content.substring(lastIndex, match.index));
       }
-      parts.push(<strong key={lastIndex} className="font-bold">{match[1]}</strong>);
+      parts.push(<strong key={lastIndex} className="font-bold text-black">{match[1]}</strong>);
       lastIndex = match.index + match[0].length;
     }
     if (lastIndex < content.length) {
@@ -94,181 +81,331 @@ export function ResumeRenderer({ text, variant = "resume" }: ResumeRendererProps
     return parts.length > 0 ? <>{parts}</> : content;
   };
 
-  lines.forEach((line, i) => {
-    const trimmed = line.trim();
+  // Parse text into logical blocks
+  const parseBlocks = (): Block[] => {
+    const clean = sanitizeText(text);
+    const lines = clean.split("\n");
+    const blocks: Block[] = [];
+    let bulletItems: React.ReactNode[] = [];
+    let nameSet = false;
 
-    if (!trimmed) {
-      flushBullets(`blank-${i}`);
-      result.push(<div key={`sp-${i}`} className="h-1" />);
-      return;
-    }
+    const flushBullets = (index: number | string) => {
+      if (bulletItems.length > 0) {
+        blocks.push({
+          id: `ul-${index}`,
+          jsx: (
+            <ul className="mt-[4px] mb-[12px] list-none pl-1">
+              {bulletItems.map((item, i) => (
+                <li key={i} className="text-[11pt] leading-[1.5] text-black flex items-start gap-[8px] mb-[4px]">
+                  <span className="shrink-0 mt-[4px] text-[8pt]">•</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          ),
+        });
+        bulletItems = [];
+      }
+    };
 
-    // Section divider - ignore because we auto-add border under section headers
-    if (/^[-─=]{3,}$/.test(trimmed)) {
-      flushBullets(`hr-${i}`);
-      return; 
-    }
+    lines.forEach((line, i) => {
+      const trimmed = line.trim();
 
-    // Bullet point (•, -, *, or ►)
-    if (/^[•\-\*►]/.test(trimmed)) {
-      let content = trimmed.replace(/^[•\-\*►]\s*/, "").trim();
-      bulletItems.push(renderInlineMarkdown(content));
-      return;
-    }
+      if (!trimmed) {
+        flushBullets(`blank-${i}`);
+        blocks.push({ id: `sp-${i}`, jsx: <div className="h-2" /> });
+        return;
+      }
 
-    flushBullets(i);
+      if (/^[-─=]{3,}$/.test(trimmed)) {
+        flushBullets(`hr-${i}`);
+        return;
+      }
 
-    // Name — first non-empty line (Only for Resumes)
-    if (variant === "resume" && !nameSet) {
-      nameSet = true;
-      result.push(
-        <h1 key={`name-${i}`} className="text-[26pt] font-bold text-center text-black tracking-tight mb-[4px] font-serif">
-          {trimmed.replace(/\*\*/g, "")}
-        </h1>
-      );
-      return;
-    }
+      if (/^[•\-\*►]/.test(trimmed)) {
+        let content = trimmed.replace(/^[•\-\*►]\s*/, "").trim();
+        bulletItems.push(renderInlineMarkdown(content));
+        return;
+      }
 
-    // Contact line (email, phone, LinkedIn, GitHub) - Only for Resumes
-    if (
-      variant === "resume" && (
-        trimmed.includes("@") ||
-        trimmed.includes("linkedin.com") ||
-        trimmed.includes("github.com") ||
-        (trimmed.includes("|") && trimmed.length < 200 && !trimmed.includes("•") && !trimmed.match(/20\d{2}/)) // Exclude experience lines
-      )
-    ) {
-      // Clean up "Email: ", "Phone: " to save space and look cleaner
-      let contactLine = trimmed
-        .replace(/Email:\s*/gi, "")
-        .replace(/Phone:\s*/gi, "")
-        .replace(/LinkedIn:\s*/gi, "")
-        .replace(/GitHub:\s*/gi, "");
-      
-      result.push(
-        <p key={`contact-${i}`} className="text-[10pt] text-center text-black mb-[8px] leading-relaxed">
-          {contactLine}
-        </p>
-      );
-      return;
-    }
+      flushBullets(i);
 
-    // Section header — ALL CAPS, short (or Title Case if followed by line divider) - Only for Resumes
-    const isAllCaps = trimmed === trimmed.toUpperCase() && /[A-Z]/.test(trimmed);
-    const isHeader =
-      variant === "resume" &&
-      (isAllCaps || trimmed === "Professional Summary" || trimmed === "Technical Skills" || trimmed === "Internship Experience" || trimmed === "Experience" || trimmed === "Projects" || trimmed === "Education" || trimmed === "Certifications" || trimmed === "Leadership Activities") &&
-      trimmed.length > 2 &&
-      trimmed.length < 60;
+      if (variant === "resume" && !nameSet) {
+        nameSet = true;
+        blocks.push({
+          id: `name-${i}`,
+          jsx: (
+            <h1 className="text-[24pt] font-bold text-center text-black tracking-tight mb-[4px]">
+              {trimmed.replace(/\*\*/g, "")}
+            </h1>
+          ),
+        });
+        return;
+      }
 
-    if (isHeader) {
-      result.push(
-        <div key={`sec-${i}`} className="mt-[16px] mb-[6px] break-inside-avoid">
-          <h2 className="text-[13pt] font-bold text-black uppercase border-b-[1.5px] border-black pb-[2px] tracking-[0.05em] font-serif">
-            {trimmed.replace(/\*\*/g, "")}
-          </h2>
-        </div>
-      );
-      return;
-    }
-
-    // Job/education entry header: Usually contains a '|' or a Date - Only for Resumes
-    const dateInfo = extractDate(trimmed);
-    if (variant === "resume" && (trimmed.includes("|") || dateInfo) && trimmed.length < 150) {
-      let leftContent = "";
-      let rightContent = "";
-      let bottomContent = "";
-      let bottomItalic = false;
-
-      if (trimmed.includes("|")) {
-        const parts = trimmed.split("|").map((p) => p.trim().replace(/\*\*/g, ""));
+      if (
+        variant === "resume" && (
+          trimmed.includes("@") ||
+          trimmed.includes("linkedin.com") ||
+          trimmed.includes("github.com") ||
+          (trimmed.includes("|") && trimmed.length < 200 && !trimmed.includes("•") && !trimmed.match(/20\d{2}/))
+        )
+      ) {
+        let contactLine = trimmed
+          .replace(/Email:\s*/gi, "")
+          .replace(/Phone:\s*/gi, "")
+          .replace(/LinkedIn:\s*/gi, "")
+          .replace(/GitHub:\s*/gi, "");
         
-        if (parts.length === 2) {
-          leftContent = parts[0];
-          const rightDateInfo = extractDate(parts[1]);
-          if (rightDateInfo) {
-            bottomContent = rightDateInfo.textWithoutDate;
-            rightContent = rightDateInfo.date;
-            bottomItalic = true; 
-          } else {
-            rightContent = parts[1];
-          }
-        } else if (parts.length >= 3) {
-          leftContent = parts[1];
-          bottomContent = parts[0];
-          rightContent = parts[parts.length - 1];
-          bottomItalic = true;
-        }
-      } else if (dateInfo) {
-        if (dateInfo.textWithoutDate.includes(",")) {
-          const parts = dateInfo.textWithoutDate.split(",");
-          leftContent = parts[0].trim();
-          bottomContent = parts.slice(1).join(",").trim();
-          bottomItalic = true;
-        } else {
-          leftContent = dateInfo.textWithoutDate;
-        }
-        rightContent = dateInfo.date;
+        blocks.push({
+          id: `contact-${i}`,
+          jsx: <p className="text-[10.5pt] text-center text-black mb-[12px] leading-relaxed">{contactLine}</p>,
+        });
+        return;
       }
 
-      result.push(
-        <div key={`job-${i}`} className="mt-[12px] mb-[4px] break-inside-avoid">
-          <div className="flex items-baseline justify-between gap-4">
-            <span className="text-[12pt] font-bold text-black">{leftContent}</span>
-            {rightContent && <span className="text-[11pt] text-black shrink-0 font-medium">{rightContent}</span>}
-          </div>
-          {bottomContent && (
-            <div className={`text-[12pt] text-black ${bottomItalic ? "italic" : ""} mt-[2px]`}>
-              {bottomContent}
+      const isAllCaps = trimmed === trimmed.toUpperCase() && /[A-Z]/.test(trimmed);
+      const isHeader =
+        variant === "resume" &&
+        (isAllCaps || trimmed === "Professional Summary" || trimmed === "Technical Skills" || trimmed === "Internship Experience" || trimmed === "Experience" || trimmed === "Projects" || trimmed === "Education" || trimmed === "Certifications" || trimmed === "Leadership Activities") &&
+        trimmed.length > 2 &&
+        trimmed.length < 60;
+
+      if (isHeader) {
+        blocks.push({
+          id: `sec-${i}`,
+          jsx: (
+            <div className="mt-[16px] mb-[6px]">
+              <h2 className="text-[12pt] font-bold text-black uppercase border-b-[1px] border-zinc-400 pb-[2px] tracking-[0.08em]">
+                {trimmed.replace(/\*\*/g, "")}
+              </h2>
             </div>
-          )}
-        </div>
-      );
-      return;
-    }
+          ),
+        });
+        return;
+      }
 
-    // Skills line: "Category: Skill1, Skill2..." - Only for Resumes
-    if (variant === "resume" && trimmed.includes(":") && trimmed.split(":")[0].length < 35 && !trimmed.startsWith("http")) {
-      const parts = trimmed.split(":");
-      const category = parts[0].replace(/\*\*/g, "").trim();
-      const skills = parts.slice(1).join(":").trim();
-      result.push(
-        <p key={`p-${i}`} className="text-[11.5pt] leading-[1.4] text-black mb-[6px] break-inside-avoid">
-          <strong className="font-bold text-[12pt]">{category}:</strong> {renderInlineMarkdown(skills)}
-        </p>
-      );
-      return;
-    }
+      const dateInfo = extractDate(trimmed);
+      if (variant === "resume" && (trimmed.includes("|") || dateInfo) && trimmed.length < 150) {
+        let leftContent = "";
+        let rightContent = "";
+        let bottomContent = "";
+        let bottomItalic = false;
 
-    // Regular paragraph
-    // If it's a cover letter, add more spacing between paragraphs
-    const isCoverLetter = variant === "cover-letter";
-    const mb = isCoverLetter ? "mb-[14px]" : "mb-[6px]";
-    
-    let content = renderInlineMarkdown(trimmed);
-    
-    // Auto-bold specific cover letter phrases or the very last line (Name)
-    if (isCoverLetter) {
-      const isSalutation = /^(Dear |To |Dear Hiring Manager|Sincerely|Best regards|Best,|Regards,)/i.test(trimmed);
-      const isLastLine = i === lines.length - 1 || (lines.slice(i + 1).filter(l => l.trim().length > 0).length === 0);
+        if (trimmed.includes("|")) {
+          const parts = trimmed.split("|").map((p) => p.trim().replace(/\*\*/g, ""));
+          if (parts.length === 2) {
+            leftContent = parts[0];
+            const rightDateInfo = extractDate(parts[1]);
+            if (rightDateInfo) {
+              bottomContent = rightDateInfo.textWithoutDate;
+              rightContent = rightDateInfo.date;
+              bottomItalic = true; 
+            } else {
+              rightContent = parts[1];
+            }
+          } else if (parts.length >= 3) {
+            leftContent = parts[0]; 
+            bottomContent = parts[1];
+            bottomItalic = true;
+            
+            const dateMatch = extractDate(parts.slice(2).join(" | "));
+            if (dateMatch) {
+                rightContent = dateMatch.date;
+                if (dateMatch.textWithoutDate) {
+                   bottomContent += ", " + dateMatch.textWithoutDate;
+                }
+            } else {
+                rightContent = parts.slice(2).join(" | ");
+            }
+          }
+        } else if (dateInfo) {
+          if (dateInfo.textWithoutDate.includes(",")) {
+            const parts = dateInfo.textWithoutDate.split(",");
+            leftContent = parts[0].trim();
+            bottomContent = parts.slice(1).join(",").trim();
+            bottomItalic = true;
+          } else {
+            leftContent = dateInfo.textWithoutDate;
+          }
+          rightContent = dateInfo.date;
+        }
+
+        blocks.push({
+          id: `job-${i}`,
+          jsx: (
+            <div className="mt-[14px] mb-[6px]">
+              <div className="flex items-baseline justify-between gap-4">
+                <span className="text-[12pt] font-semibold tracking-tight text-black">{leftContent}</span>
+                {rightContent && <span className="text-[10pt] text-zinc-800 shrink-0 font-medium">{rightContent}</span>}
+              </div>
+              {bottomContent && (
+                <div className={`text-[10.5pt] text-zinc-900 font-medium ${bottomItalic ? "italic" : ""} mt-[1px]`}>
+                  {bottomContent}
+                </div>
+              )}
+            </div>
+          ),
+        });
+        return;
+      }
+
+      if (variant === "resume" && trimmed.includes(":") && trimmed.split(":")[0].length < 35 && !trimmed.startsWith("http")) {
+        const parts = trimmed.split(":");
+        const category = parts[0].replace(/\*\*/g, "").trim();
+        const skills = parts.slice(1).join(":").trim();
+        blocks.push({
+          id: `p-${i}`,
+          jsx: (
+            <p className="text-[11pt] leading-[1.5] text-black mb-[6px]">
+              <strong className="font-bold">{category}:</strong> {renderInlineMarkdown(skills)}
+            </p>
+          ),
+        });
+        return;
+      }
+
+      const isCoverLetter = variant === "cover-letter";
+      const mb = isCoverLetter ? "mb-[16px]" : "mb-[8px]";
       
-      if (isSalutation || (isLastLine && trimmed.length < 40)) {
-        content = <strong className="font-bold">{content}</strong>;
+      let content = renderInlineMarkdown(trimmed);
+      
+      if (isCoverLetter) {
+        const isSalutation = /^(Dear |To |Dear Hiring Manager|Sincerely|Best regards|Best,|Regards,)/i.test(trimmed);
+        const isLastLine = i === lines.length - 1 || (lines.slice(i + 1).filter(l => l.trim().length > 0).length === 0);
+        
+        if (isSalutation || (isLastLine && trimmed.length < 40)) {
+          content = <strong className="font-bold text-black">{content}</strong>;
+        }
+      }
+
+      blocks.push({
+        id: `p-${i}`,
+        jsx: (
+          <p className={`text-[11pt] leading-[1.6] text-black ${mb} ${isCoverLetter ? "" : "text-justify"}`}>
+            {content}
+          </p>
+        ),
+      });
+    });
+
+    flushBullets("end");
+    return blocks;
+  };
+
+  const blocks = parseBlocks();
+
+  // Re-measure whenever text changes
+  useEffect(() => {
+    setPages(null);
+  }, [text, variant]);
+
+  useLayoutEffect(() => {
+    if (pages !== null) return; // already paginated
+
+    const newPages: Block[][] = [[]];
+    let currentHeight = 0;
+    let currentPageIndex = 0;
+    
+    // We want to avoid pushing a header if there's no content after it on the same page
+    let pendingHeader: Block | null = null;
+    let pendingHeaderHeight = 0;
+
+    blocks.forEach((block, i) => {
+      const el = blockRefs.current[i];
+      const rect = el?.getBoundingClientRect();
+      const blockHeight = rect ? rect.height : 0;
+      
+      const isHeader = block.id.startsWith("sec-");
+
+      if (isHeader) {
+        // Hold the header temporarily to see if the next content fits
+        pendingHeader = block;
+        pendingHeaderHeight = blockHeight;
+        return;
+      }
+
+      // If we have a pending header, we evaluate it along with the current block
+      const effectiveHeight = currentHeight + (pendingHeader ? pendingHeaderHeight : 0) + blockHeight;
+
+      if (effectiveHeight > PRINTABLE_HEIGHT && newPages[currentPageIndex].length > 0) {
+        // Doesn't fit, jump to new page
+        currentPageIndex++;
+        newPages.push([]);
+        currentHeight = 0;
+        
+        if (pendingHeader) {
+          newPages[currentPageIndex].push(pendingHeader);
+          currentHeight += pendingHeaderHeight;
+          pendingHeader = null;
+        }
+        
+        newPages[currentPageIndex].push(block);
+        currentHeight += blockHeight;
+      } else {
+        // Fits on current page
+        if (pendingHeader) {
+          newPages[currentPageIndex].push(pendingHeader);
+          currentHeight += pendingHeaderHeight;
+          pendingHeader = null;
+        }
+        newPages[currentPageIndex].push(block);
+        currentHeight += blockHeight;
+      }
+    });
+    
+    // Flush any trailing header
+    if (pendingHeader) {
+      if (currentHeight + pendingHeaderHeight > PRINTABLE_HEIGHT && newPages[currentPageIndex].length > 0) {
+        newPages.push([pendingHeader]);
+      } else {
+        newPages[currentPageIndex].push(pendingHeader);
       }
     }
 
-    result.push(
-      <p key={`p-${i}`} className={`text-[11.5pt] leading-[1.6] text-black ${mb} ${isCoverLetter ? "" : "text-justify"} break-inside-avoid`}>
-        {content}
-      </p>
-    );
-  });
+    setPages(newPages);
+  }, [blocks, pages]);
 
-  flushBullets("end");
-  
+  // Pass 1: Render invisibly to measure
+  if (pages === null) {
+    return (
+      <div 
+        className="bg-white shadow-2xl relative opacity-0 pointer-events-none -z-10"
+        style={{ width: "210mm", padding: "25.4mm" }}
+      >
+        <div className="font-sans text-black" style={{ fontFamily: "'Inter', 'Calibri', 'Source Sans Pro', sans-serif" }}>
+          {blocks.map((b, i) => (
+            <div key={b.id} ref={(el) => { blockRefs.current[i] = el; }}>
+              {b.jsx}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Pass 2: Render separated physical pages
   return (
-    <div className="text-black font-serif leading-tight">
-      {result}
+    <div className="flex flex-col items-center gap-8 font-sans" id="pdf-export-container">
+      {pages.map((pageBlocks, pageIndex) => (
+        <div
+          key={`page-${pageIndex}`}
+          className="a4-page bg-white shadow-xl relative"
+          style={{
+            width: "210mm",
+            minHeight: "297mm", // 1122px
+            padding: "25.4mm", // 96px
+            boxSizing: "border-box",
+            fontFamily: "'Inter', 'Calibri', 'Source Sans Pro', sans-serif"
+          }}
+        >
+          <div className="h-full flex flex-col">
+            {pageBlocks.map((b) => (
+              <React.Fragment key={b.id}>{b.jsx}</React.Fragment>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

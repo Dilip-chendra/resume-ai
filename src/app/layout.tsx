@@ -47,9 +47,6 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: "/",
-    languages: {
-      "en-US": "/en-US",
-    },
   },
   openGraph: {
     title: "Resume AI - Free AI Resume Builder & ATS Checker",
@@ -99,7 +96,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: "bc-8jsf_KH3BK8Znuyakru7Py_paEI0c_1OESsQytPE",
+    google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION || "",
     other: {
       "msvalidate.01": process.env.NEXT_PUBLIC_BING_VERIFICATION || "",
     },
@@ -121,8 +118,12 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          <GoogleAnalytics />
-          <Clarity />
+          {process.env.NODE_ENV === "production" && (
+            <>
+              <GoogleAnalytics />
+              <Clarity />
+            </>
+          )}
           {children}
         </body>
       </html>

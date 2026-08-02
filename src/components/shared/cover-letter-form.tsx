@@ -70,23 +70,26 @@ export function CoverLetterForm({ resumes }: { resumes: ResumeChoice[] }) {
     <>
       <style>{`
         @media print {
-          @page { margin: 1in; }
-          /* Hide everything except the paper */
-          body { background: white !important; }
-          .no-print { display: none !important; }
+          @page { margin: 0; size: a4 portrait; }
+          body * {
+            visibility: hidden;
+          }
+          #cv-paper, #cv-paper * {
+            visibility: visible;
+          }
           #cv-paper {
+            position: absolute;
+            left: 0;
+            top: 0;
             width: 100% !important;
-            padding: 0 !important;
             margin: 0 !important;
+            padding: 0 !important;
             box-shadow: none !important;
-            border-radius: 0 !important;
-            height: auto !important;
-            min-height: auto !important;
-            overflow: visible !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: flex-start !important;
-            align-items: stretch !important;
+          }
+          .a4-page {
+            box-shadow: none !important;
+            margin: 0 !important;
+            break-after: page;
           }
         }
       `}</style>
@@ -261,16 +264,7 @@ export function CoverLetterForm({ resumes }: { resumes: ResumeChoice[] }) {
           </div>
           
           <div className="overflow-x-auto pb-4 flex justify-center">
-            <div
-              id="cv-paper"
-              className="bg-white shadow-2xl w-full"
-              style={{
-                maxWidth: "720px",
-                minHeight: "960px",
-                padding: "44px 52px",
-                fontFamily: "'Times New Roman', Times, serif",
-              }}
-            >
+            <div id="cv-paper" className="w-full max-w-[210mm]">
               <ResumeRenderer text={result} variant="cover-letter" />
             </div>
           </div>

@@ -3,21 +3,22 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileText, Menu, X, Sparkles, ChevronRight } from "lucide-react";
+import { FileText, Menu, X, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useAuth } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-  { href: "#features", label: "Features" },
-  { href: "#pricing", label: "Pricing" },
-  { href: "#testimonials", label: "Testimonials" },
-  { href: "#faq", label: "FAQ" },
+  { href: "/features", label: "Features" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/templates", label: "Templates" },
+  { href: "/blog", label: "Blog" },
 ];
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const { isSignedIn } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -67,32 +68,59 @@ export function Navbar() {
 
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
-            <Link href="/sign-in">Sign in</Link>
-          </Button>
-          <Button
-            size="sm"
-            className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/25 border-0 gap-1.5"
-            asChild
-          >
-            <Link href="/dashboard">
-              Try for free
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
-          </Button>
+          {isSignedIn ? (
+            <Button
+              size="sm"
+              className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/25 border-0 gap-1.5"
+              asChild
+            >
+              <Link href="/dashboard">
+                Dashboard
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </Button>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
+                <Link href="/sign-in">Sign in</Link>
+              </Button>
+              <Button
+                size="sm"
+                className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/25 border-0 gap-1.5"
+                asChild
+              >
+                <Link href="/sign-up">
+                  Get started free
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
+              </Button>
+            </>
+          )}
         </div>
 
-        {/* Mobile Menu */}
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger
-            render={
-              <Button variant="ghost" size="icon" className="md:hidden">
-                {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </Button>
-            }
-          />
-          <SheetContent side="right" className="w-72 glass border-l border-white/10">
-            <div className="flex flex-col gap-2 mt-8">
+        {/* Mobile Menu Button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden"
+          onClick={() => setOpen(!open)}
+          aria-label={open ? "Close menu" : "Open menu"}
+        >
+          {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </Button>
+      </div>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden glass border-b border-white/10"
+          >
+            <div className="container mx-auto px-4 py-4 flex flex-col gap-2">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -103,21 +131,26 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <div className="border-t border-white/10 mt-4 pt-4 flex flex-col gap-2">
-                <Button variant="ghost" className="justify-start" asChild>
-                  <Link href="/sign-in" onClick={() => setOpen(false)}>Sign in</Link>
-                </Button>
-                <Button
-                  className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white border-0"
-                  asChild
-                >
-                  <Link href="/dashboard" onClick={() => setOpen(false)}>Try for free</Link>
-                </Button>
+              <div className="border-t border-white/10 mt-2 pt-4 flex flex-col gap-2">
+                {isSignedIn ? (
+                  <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white border-0" asChild>
+                    <Link href="/dashboard" onClick={() => setOpen(false)}>Dashboard</Link>
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="ghost" className="justify-start" asChild>
+                      <Link href="/sign-in" onClick={() => setOpen(false)}>Sign in</Link>
+                    </Button>
+                    <Button className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white border-0" asChild>
+                      <Link href="/sign-up" onClick={() => setOpen(false)}>Get started free</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
-          </SheetContent>
-        </Sheet>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.header>
   );
 }

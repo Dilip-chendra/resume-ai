@@ -1,6 +1,11 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { SettingsForm } from "@/components/shared/settings-form";
+import { redirect } from "next/navigation";
+
+export const metadata = {
+  title: "Settings — ResumeAI",
+};
 
 export default async function SettingsPage() {
   const { userId } = await auth();
@@ -29,7 +34,7 @@ export default async function SettingsPage() {
   });
 
   if (!user) {
-    return null;
+    redirect("/dashboard");
   }
 
   return (

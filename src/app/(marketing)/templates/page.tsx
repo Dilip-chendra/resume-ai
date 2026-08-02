@@ -50,7 +50,7 @@ export default function TemplatesPage() {
                     {template.category}
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-4">{template.name}</h3>
-                  <Link href="/dashboard/resumes/new" className="inline-flex items-center text-sm font-semibold text-white hover:text-violet-400 transition-colors">
+                  <Link href={`/dashboard/resumes/new?template=${template.name.toLowerCase().replace(" ", "-")}`} className="inline-flex items-center text-sm font-semibold text-white hover:text-violet-400 transition-colors">
                     Use Template <ArrowRight className="ml-2 w-4 h-4" />
                   </Link>
                 </div>

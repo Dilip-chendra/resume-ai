@@ -67,7 +67,7 @@ export default function GuestResumePreview() {
       {/* Print-only styles: hide everything except the paper */}
       <style>{`
         @media print {
-          @page { margin: 1in; }
+          @page { margin: 0; size: a4 portrait; }
           body { background: white !important; }
           .no-print { display: none !important; }
           #resume-paper-guest {
@@ -79,10 +79,12 @@ export default function GuestResumePreview() {
             height: auto !important;
             min-height: auto !important;
             overflow: visible !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: flex-start !important;
-            align-items: stretch !important;
+            display: block !important;
+          }
+          .a4-page {
+            box-shadow: none !important;
+            margin: 0 !important;
+            break-after: page;
           }
         }
       `}</style>
@@ -145,17 +147,8 @@ export default function GuestResumePreview() {
         </div>
 
         {/* Resume Paper — this is what gets exported to PDF */}
-        <div className="max-w-4xl mx-auto px-6 pb-16 flex justify-center">
-          <div
-            id="resume-paper-guest"
-            className="bg-white w-full shadow-2xl"
-            style={{
-              maxWidth: "794px",
-              minHeight: "1123px",
-              padding: "48px 56px",
-              fontFamily: "'Times New Roman', Times, serif",
-            }}
-          >
+        <div className="w-full flex justify-center pb-20">
+          <div id="resume-paper-guest" className="w-full max-w-[210mm]">
             <ResumeRenderer text={data.content} />
           </div>
         </div>
